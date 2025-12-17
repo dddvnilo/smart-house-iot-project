@@ -1,5 +1,11 @@
+from simulators.actuators.led import run_led_simulator
+import threading
+import time
+
 def dl_callback(state):
+    t = time.localtime()
     print("\n"+"="*20)
+    print(f"Timestamp: {time.strftime('%H:%M:%S', t)}")
     # state kao True/False
     if state:
         print("DL: Door Light turned ON")
@@ -8,6 +14,11 @@ def dl_callback(state):
 
 def run_dl(settings, threads, stop_event):
     if settings['simulated']:
-        print("kod simulacije za dl")
+        print("Starting DL simulator")
+        dl_thread = threading.Thread(target = run_led_simulator, args=(dl_callback, stop_event))
+        dl_thread.start()
+        threads.append(dl_thread)
+        print("DL sumilator started")
     else:
-        print("kod za dl")
+        print("Starting DL loop")
+        print("DL loop started")

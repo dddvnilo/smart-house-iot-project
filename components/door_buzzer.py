@@ -12,11 +12,11 @@ def db_callback(duration):
 
 def run_db(settings, threads, stop_event):
     if settings['simulated']:
-        print("Starting DB1 simulator")
+        print("Starting DB simulator")
         db_thread = threading.Thread(target = run_buzzer_simulator, args=(db_callback, settings, stop_event))
         db_thread.start()
         threads.append(db_thread)
-        print("DB1 sumilator started")
+        print("DB sumilator started")
     else:
-        print("Starting DB1 loop")
-        print("DB1 loop started")
+        print("Starting DB loop")
+        print("DB loop started")
