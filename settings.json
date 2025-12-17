@@ -1,0 +1,35 @@
+{
+    "DL": {
+        "simulated": true,
+        "pin": 18
+    },
+    "DS1": {
+        "simulated": true,
+        "pin": 17,
+        "pull": "up",
+        "bouncetime": 100
+    },
+    "DB": {
+        "simulated": true,
+        "pin": 27,
+        "active": false, // nisam siguran koji tip buzzera koristimo na vezbama dal aktivni dal pasivni napravicemo oba vrv ~ danilo
+        "pitch": 440,
+        "duration": 0.1
+    },
+    "DPIR1": {
+        "simulated": true,
+        "pin": 4
+    },
+    "DUS1": {
+        "simulated": true,
+        "trig_pin": 23,
+        "echo_pin": 24
+    },
+    "DMS" : {
+        "simulated": true,
+        "pin_rows": [25, 8, 7, 1],
+        "pin_cols": [12, 16, 20, 21],
+        "scan_delay": 0.2 // izmedju dva unosa tastera
+        // nzm da li za ovaj keypad dodavati pull up - down ili da bude samo down u kodu za kolone
+    }
+}
