@@ -14,7 +14,7 @@
         "pin": 27,
         "active": false,
         "pitch": 440,
-        "duration": 0.1
+        "duration": 0.2
     },
     "DPIR1": {
         "simulated": true,
