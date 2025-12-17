@@ -23,7 +23,8 @@
     "DUS1": {
         "simulated": true,
         "trig_pin": 23,
-        "echo_pin": 24
+        "echo_pin": 24,
+        "scan_delay": 1
     },
     "DMS" : {
         "simulated": true,
