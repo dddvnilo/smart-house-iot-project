@@ -12,7 +12,7 @@
     "DB": {
         "simulated": true,
         "pin": 27,
-        "active": false, // nisam siguran koji tip buzzera koristimo na vezbama dal aktivni dal pasivni napravicemo oba vrv ~ danilo
+        "active": false,
         "pitch": 440,
         "duration": 0.1
     },
@@ -29,7 +29,6 @@
         "simulated": true,
         "pin_rows": [25, 8, 7, 1],
         "pin_cols": [12, 16, 20, 21],
-        "scan_delay": 0.2 // izmedju dva unosa tastera
-        // nzm da li za ovaj keypad dodavati pull up - down ili da bude samo down u kodu za kolone
+        "scan_delay": 0.2
     }
 }
