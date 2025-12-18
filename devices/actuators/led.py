@@ -1,6 +1,5 @@
 try:
     import RPi.GPIO as GPIO
-    from utils import PULL_MAP
 except:
     pass
 import time
@@ -14,10 +13,6 @@ class LED(object):
         self.led_state = False
 
         GPIO.setup(self.pin,GPIO.OUT)
-
-        GPIO.output(18,GPIO.HIGH)
-        time.sleep(1)
-        GPIO.output(18,GPIO.LOW)
     
 
     def toggle_led(self):
@@ -40,7 +35,10 @@ class LED(object):
 
 def run_led_loop(led, stop_event):
     while True:
+        if stop_event.is_set():
+            break
         if keyboard.is_pressed('l'):
             led.toggle_led()
             # while keyboard.is_pressed('l'):
             #    time.sleep(0.05)
+            
