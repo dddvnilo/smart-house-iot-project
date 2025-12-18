@@ -1,5 +1,11 @@
+from simulators.sensors.pir import run_pir_simulator
+import time
+import threading
+
 def dpir1_callback(motion):
+    t = time.localtime()
     print("\n"+"="*20)
+    print(f"Timestamp: {time.strftime('%H:%M:%S', t)}")
     if motion:
         print("DPIR1: Motion detected!")
     else:
@@ -7,6 +13,11 @@ def dpir1_callback(motion):
 
 def run_dpir1(settings, threads, stop_event):
     if settings['simulated']:
-        print("kod simulacije za dpir1")
+        print("Starting DPIR1 simulator")
+        dpir1_thread = threading.Thread(target = run_pir_simulator, args=(dpir1_callback, stop_event))
+        dpir1_thread.start()
+        threads.append(dpir1_thread)
+        print("DPIR1 sumilator started")
     else:
-        print("kod za dpir1")
+        print("Starting DPIR1 loop")
+        print("DPIR1 loop started")

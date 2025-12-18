@@ -24,7 +24,7 @@
         "simulated": true,
         "trig_pin": 23,
         "echo_pin": 24,
-        "scan_delay": 1
+        "scan_delay": 2
     },
     "DMS" : {
         "simulated": true,
