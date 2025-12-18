@@ -8,4 +8,4 @@ def run_pir_simulator(callback, stop_event):
             callback(True) # edge rising
             time.sleep(1)
             callback(False) # edge falling
-        time.sleep(0.5)
+        time.sleep(5)

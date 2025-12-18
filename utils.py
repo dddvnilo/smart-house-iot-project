@@ -1,7 +1,11 @@
-import RPi.GPIO as GPIO
+try:
+    import RPi.GPIO as GPIO
 
-# GPIO pull-up/down mapping
-PULL_MAP = {
-    "up": GPIO.PUD_UP,
-    "down": GPIO.PUD_DOWN
-}
+    # GPIO pull-up/down mapping
+    PULL_MAP = {
+        "up": GPIO.PUD_UP,
+        "down": GPIO.PUD_DOWN
+    }
+except:
+    pass
+
