@@ -22,7 +22,7 @@ def run_ds1(settings, threads, stop_event):
     else:
         print("Starting DS1 loop")
         ds1 = Button(settings["pin"], settings["pull"],callback=ds1_callback)
-        ds1_thread = threading.Thread(target = run_button_loop, args=(ds1, ds1_callback, stop_event))
+        ds1_thread = threading.Thread(target = run_button_loop, args=(ds1, stop_event))
         ds1_thread.start()
         threads.append(ds1_thread)
         print("DS1 loop started")
