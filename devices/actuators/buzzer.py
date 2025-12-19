@@ -20,8 +20,8 @@ class Buzzer(object):
         delay = period / 2
         cycles = int(self.duration * self.pitch)
 
-        self.callback(self.duration)
-        
+        self.callback()
+
         for i in range(cycles):
             GPIO.output(self.pin, True)
             time.sleep(delay)
