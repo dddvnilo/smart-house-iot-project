@@ -60,7 +60,7 @@ def run_dus1(settings, threads, stop_event):
         print("DUS1 sumilator started")
     else:
         print("Starting DUS1 loop")
-        dus = UDS(trig_pin=settings["trig_pin"], echo_pin=settings["echo_pin"], scan_delay=settings["scan_delay"], callback=dus1_callback)
+        dus = UDS(settings=settings, publish_event=publish_event, callback=dus1_callback)
         dus_thread = threading.Thread(target = run_uds_loop, args=(dus, stop_event))
         dus_thread.start()
         threads.append(dus_thread)

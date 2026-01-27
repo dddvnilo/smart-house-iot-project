@@ -6,11 +6,13 @@ import time
 
 
 class UDS(object):
-    def __init__(self,trig_pin, echo_pin, scan_delay,callback):
+    def __init__(self,settings,callback, publish_event):
         self.callback = callback
-        self.trig_pin = trig_pin
-        self.echo_pin = echo_pin
-        self.scan_delay = scan_delay
+        self.trig_pin = settings["trig_pin"]
+        self.echo_pin = settings["echo_pin"]
+        self.scan_delay = settings["scan_delay"]
+        self.settings = settings
+        self.publish_event = publish_event
 
         GPIO.setup(self.trig_pin, GPIO.OUT)
         GPIO.setup(self.echo_pin, GPIO.IN)
@@ -43,7 +45,7 @@ class UDS(object):
         pulse_duration = pulse_end_time - pulse_start_time
         distance = (pulse_duration * 34300)/2
 
-        self.callback(distance)
+        self.callback(distance, self.settings, self.publish_event)
 
 def run_uds_loop(uds, stop_event):
     while True:
