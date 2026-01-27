@@ -18,15 +18,18 @@ influxdb_client = InfluxDBClient(url=url, token=token, org=org)
 
 # MQTT Configuration
 mqtt_client = mqtt.Client()
-mqtt_client.connect("localhost", 1883, 60)
+mqtt_client.connect("127.0.0.1", 1883, 60)
 mqtt_client.loop_start()
 
 def on_connect(client, userdata, flags, rc):
-    client.subscribe("Temperature")
-    client.subscribe("Humidity")
+    client.subscribe("Distance")
+
+def on_disconnect(client, userdata, rc):
+    print("Disconnected with result code", rc)
 
 mqtt_client.on_connect = on_connect
 mqtt_client.on_message = lambda client, userdata, msg: save_to_db(json.loads(msg.payload.decode('utf-8')))
+mqtt_client.on_disconnect = on_disconnect
 
 
 def save_to_db(data):
@@ -69,9 +72,11 @@ def handle_influx_query(query):
 
 @app.route('/simple_query', methods=['GET'])
 def retrieve_simple_data():
-    query = f"""from(bucket: "{bucket}")
-    |> range(start: -10m)
-    |> filter(fn: (r) => r._measurement == "Humidity")"""
+    query = f"""from(bucket: "iot_smart_house")
+  |> range(start: -5h)                     // proverava poslednjih 5 sati
+  |> filter(fn: (r) => r._measurement == "Distance")
+  |> keep(columns: ["_time", "_value", "simulated", "runs_on", "name"])
+  |> sort(columns: ["_time"])"""
     return handle_influx_query(query)
 
 
