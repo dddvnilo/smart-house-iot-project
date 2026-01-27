@@ -1,35 +1,47 @@
 {
     "DL": {
         "simulated": true,
-        "pin": 18
+        "pin": 18,
+        "runs_on": "PI1",
+        "name": "Door light"
     },
     "DS1": {
         "simulated": true,
         "pin": 17,
         "pull": "up",
-        "bouncetime": 100
+        "bouncetime": 100,
+        "runs_on": "PI1",
+        "name": "Door sensor 1"
     },
     "DB": {
         "simulated": true,
         "pin": 27,
         "active": false,
         "pitch": 440,
-        "duration": 0.2
+        "runs_on": "PI1",
+        "duration": 0.2,
+        "name": "Door buzzer"
     },
     "DPIR1": {
         "simulated": true,
-        "pin": 4
+        "runs_on": "PI1",
+        "pin": 4,
+        "name": "Door motion sensor 1"
     },
     "DUS1": {
         "simulated": true,
         "trig_pin": 23,
         "echo_pin": 24,
-        "scan_delay": 2
+        "runs_on": "PI1",
+        "scan_delay": 2,
+        "name": "Door ultrasonic sensor 1"
     },
     "DMS" : {
         "simulated": true,
         "pin_rows": [25, 8, 7, 1],
         "pin_cols": [12, 16, 20, 21],
-        "scan_delay": 0.2
+        "runs_on": "PI1",
+        "scan_delay": 0.2,
+        "name": "Door membrane switch"
     }
 }

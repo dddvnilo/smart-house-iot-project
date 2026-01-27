@@ -9,10 +9,10 @@ app = Flask(__name__)
 
 
 # InfluxDB Configuration
-token = "B8HDBR5Sh9cCibUUGyUAM2rDL4ajESUs_UyUHpRp52OT3mL1IriRtRCD2cnnix-09BGs1_OU9xv9HMNXnWDSGg=="
+token = "superToken"
 org = "FTN"
 url = "http://localhost:8086"
-bucket = "example_db"
+bucket = "iot_smart_house"
 influxdb_client = InfluxDBClient(url=url, token=token, org=org)
 
 
@@ -85,4 +85,5 @@ def retrieve_aggregate_data():
 
 
 if __name__ == '__main__':
+    mqtt_client.loop_start()
     app.run(debug=True)
