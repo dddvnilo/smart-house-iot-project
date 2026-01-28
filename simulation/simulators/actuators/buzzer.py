@@ -1,11 +1,15 @@
-import keyboard
+import sys
+import threading
 import time
 
 def run_buzzer_simulator(callback, stop_event):
+    def input_listener():
+        while not stop_event.is_set():
+            key = sys.stdin.readline().strip().lower()
+            if key == 'b':
+                callback()
+
+    threading.Thread(target=input_listener, daemon=True).start()
+
     while not stop_event.is_set():
-        # na b sa tastature aktiviramo buzzer
-        if keyboard.is_pressed('b'):
-            callback()
-            while keyboard.is_pressed('b'):
-                time.sleep(0.05)
-            time.sleep(0.05)
+        time.sleep(0.1)

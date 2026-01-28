@@ -3,7 +3,8 @@ try:
 except:
     pass
 import time
-import keyboard
+import threading
+import sys
 
 
 class LED(object):
@@ -34,11 +35,13 @@ class LED(object):
         self.callback(self.led_state)
 
 def run_led_loop(led, stop_event):
-    while True:
-        if stop_event.is_set():
-            break
-        if keyboard.is_pressed('l'):
-            led.toggle_led()
-            # while keyboard.is_pressed('l'):
-            #    time.sleep(0.05)
-            
+    def input_listener():
+        while not stop_event.is_set():
+            key = sys.stdin.readline().strip().lower()
+            if key == 'l':
+                led.toggle_led()
+
+    threading.Thread(target=input_listener, daemon=True).start()
+
+    while not stop_event.is_set():
+        time.sleep(0.1)

@@ -3,7 +3,8 @@ try:
 except:
     pass
 import time
-import keyboard
+import threading
+import sys
 
 
 class Buzzer(object):
@@ -28,11 +29,15 @@ class Buzzer(object):
             GPIO.output(self.pin, False)
             time.sleep(delay)
 
-
 def run_buzz_loop(buzzer, stop_event):
-    while True:
-        if stop_event.is_set():
-            break
-        if keyboard.is_pressed('b'):
-            buzzer.buzz()
+    def input_listener():
+        while not stop_event.is_set():
+            key = sys.stdin.readline().strip().lower()
+            if key == 'b':
+                buzzer.buzz()
+
+    threading.Thread(target=input_listener, daemon=True).start()
+
+    while not stop_event.is_set():
+        time.sleep(0.1)
             
