@@ -41,11 +41,13 @@ def dus1_callback(distance, settings, publish_event):
         "simulated": settings['simulated'],
         "runs_on": settings["runs_on"],
         "name": settings["name"],
+        "timestamp": time.time(),
         "value": distance
     }
 
     with counter_lock:
-        uds_batch.append(('Distance', json.dumps(dist_payload), 0, True))
+        uds_batch.append(('home/front-door/door_ultrasonic_sensor', json.dumps(dist_payload), 0, True))
+        # door_ultrasonic_sensor_2.py kasnije bi ovde samo zamenio front-door za kitchen
         publish_data_counter += 1
 
     if publish_data_counter >= publish_data_limit:
