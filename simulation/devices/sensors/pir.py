@@ -6,16 +6,19 @@ import time
 
 
 class PIR(object):
-    def __init__(self,pin, callback):
-        self.pin = pin
+    def __init__(self,settings,callback, publish_event):
+        self.pin = settings["pin"]
         self.callback = callback
+        self.settings = settings
+        self.publish_event = publish_event
+
         GPIO.setup(self.pin, GPIO.IN)
 
     def motion_detected(self, channel):
-        self.callback(True)
+        self.callback(True, self.settings, self.publish_event)
 
     def no_motion(self, channel):
-        self.callback(False)
+        self.callback(False, self.settings, self.publish_event)
 
     def start_detecting(self):
         GPIO.add_event_detect(self.pin, GPIO.RISING, callback=self.motion_detected)

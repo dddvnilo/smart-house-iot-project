@@ -7,17 +7,17 @@ import time
 
 
 class Button(object):
-    def __init__(self,pin, pmode, callback):
-        self.pin = pin
-        self.pmode = PULL_MAP[pmode]
+    def __init__(self,settings,callback, publish_event):
+        self.pin = settings["pin"]
+        self.pmode = PULL_MAP[settings["pull"]]
         self.callback = callback
-        GPIO.setup(self.pin, GPIO.IN, pull_up_down = pmode)
+        GPIO.setup(self.pin, GPIO.IN, pull_up_down = settings["pull"])
         
     def button_pressed_callback(self):
-        self.callback(False)
+        self.callback(False, self.settings, self.publish_event)
 
     def button_released_callback(self):
-        self.callback(True)
+        self.callback(True, self.settings, self.publish_event)
 
     def start_detecting(self):
         if(self.pmode == GPIO.PUD_UP):
