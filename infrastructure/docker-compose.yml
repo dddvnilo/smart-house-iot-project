@@ -17,7 +17,7 @@ services:
 
   # InfluxDB
   influxdb:
-    image: influxdb:2.8
+    image: influxdb
     container_name: influxdb
     ports:
       - "8086:8086"
@@ -46,6 +46,9 @@ services:
     environment:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_USERNAME}
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - HTTP_PROXY=${HTTP_PROXY}
+      - HTTPS_PROXY=${HTTPS_PROXY}
+      - NO_PROXY=localhost,127.0.0.1,influxdb,grafana
     networks:
       - iot-network
 
