@@ -18,8 +18,8 @@ if __name__ == "__main__":
     try:
         
         # ucitavanje podesavanja i pokretanje komponenti
-        # ds1_settings = settings['DS1']
-        # run_ds1(ds1_settings, threads, stop_event)
+        ds1_settings = settings['DS1']
+        run_ds1(ds1_settings, threads, stop_event)
         dl_settings = settings['DL']
         run_dl(dl_settings, threads, stop_event)
         dus1_settings = settings['DUS1']

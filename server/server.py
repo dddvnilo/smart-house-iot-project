@@ -40,6 +40,7 @@ def on_dpir_message(client, userdata, message):
 
 def on_dus_message(client, userdata, message):
     data = json.loads(message.payload.decode('utf-8'))
+
     save_to_db(data, bucket=BucketNames.DOOR_ULTRASONIC_SENSOR.value)
 
 def on_ds_message(client, userdata, message):
@@ -69,7 +70,7 @@ mqtt_client.message_callback_add("home/+/door_membrane_switch", on_dms_message)
 mqtt_client.message_callback_add("home/+/door_motion_sensor", on_dpir_message)
 mqtt_client.message_callback_add("home/+/door_ultrasonic_sensor", on_dus_message)
 mqtt_client.message_callback_add("home/+/door_sensor", on_ds_message)
-# Ovaj plus je wildcard za bilo koje ime, tako da ako stigne poruka na "home/front-door/door_sensor" ili ("home/kitchen/door_sensor", 0), oba vode na isti handler
+# Ovaj plus je 'wildcard' za bilo koje ime, tako da ako stigne poruka na "home/front-door/door_sensor" ili "home/kitchen/door_sensor", oba vode na isti handler
 # Za dalje, mozemo ili napraviti odvojene handlere za to sa kog topica je stiglo, ili u ovom handleru dodati tipa e ako je bas stiglo iz kuhinje uradi nesto drugacije
 
 mqtt_client.on_disconnect = on_disconnect
@@ -123,6 +124,15 @@ def retrieve_simple_data():
   |> sort(columns: ["_time"])"""
     return handle_influx_query(query)
 
+# Ovako sam proverio dal se zapisuje za door senror preko grafane
+""" 
+from(bucket: "door_sensor")
+  |> range(start: -5h)                     // proverava poslednjih 5 sati
+  |> filter(fn: (r) => r._measurement == "IsUnlocked") // Ovde ne zaboravi da promenis koja je merna jedinica
+  |> keep(columns: ["_time", "_value", "simulated", "runs_on", "name"])
+  |> sort(columns: ["_time"])
+"""
+
 
 @app.route('/aggregate_query', methods=['GET'])
 def retrieve_aggregate_data():
@@ -134,5 +144,4 @@ def retrieve_aggregate_data():
 
 
 if __name__ == '__main__':
-    mqtt_client.loop_start()
     app.run(debug=True)
