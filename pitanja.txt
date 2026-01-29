@@ -1,5 +1,0 @@
-Da li grafana mora da se setuppuje preko fajla ili moze rucno preko guia
-Da li treba da se pravi front na koji se embedduje grafna i koji koristi api servera
-Da li se server pokrece na piu ili serveru, kako to gde sta
-Gde doker
-Da li je za kt2 samo simulatori opet ili prave komponente
