@@ -39,7 +39,7 @@ def ds1_callback(unlocked, settings, publish_event):
     else:
         print("DS1: Door is locked!")
 
-    dist_payload = {
+    is_unlocked_payload = {
         "measurement": "IsUnlocked",
         "simulated": settings['simulated'],
         "runs_on": settings["runs_on"],
@@ -49,7 +49,7 @@ def ds1_callback(unlocked, settings, publish_event):
     }
 
     with counter_lock:
-        ds_batch.append(('home/front-door/door_sensor', json.dumps(dist_payload), 0, True))
+        ds_batch.append(('home/front-door/door_sensor', json.dumps(is_unlocked_payload), 0, True))
         publish_data_counter += 1
 
     if publish_data_counter >= publish_data_limit:

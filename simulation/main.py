@@ -26,10 +26,10 @@ if __name__ == "__main__":
         run_dus1(dus1_settings, threads, stop_event)
         db_settings = settings['DB']
         run_db(db_settings, threads, stop_event)
-        # dpir1_settings = settings['DPIR1']
-        # run_dpir1(dpir1_settings, threads, stop_event)
-        # dms_settings = settings['DMS']
-        # run_dms(dms_settings, threads, stop_event)
+        dpir1_settings = settings['DPIR1']
+        run_dpir1(dpir1_settings, threads, stop_event)
+        dms_settings = settings['DMS']
+        run_dms(dms_settings, threads, stop_event)
 
         while True:
             time.sleep(1)
