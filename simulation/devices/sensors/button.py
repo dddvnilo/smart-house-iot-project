@@ -11,6 +11,8 @@ class Button(object):
         self.pin = settings["pin"]
         self.pmode = PULL_MAP[settings["pull"]]
         self.callback = callback
+        self.settings = settings
+        self.publish_event = publish_event
         GPIO.setup(self.pin, GPIO.IN, pull_up_down = settings["pull"])
         
     def button_pressed_callback(self):
