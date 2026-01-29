@@ -1,8 +1,9 @@
 from flask import Flask, jsonify, request
-from influxdb_client import InfluxDBClient, Point
+from influxdb_client import InfluxDBClient, Point, BucketRetentionRules
 from influxdb_client.client.write_api import SYNCHRONOUS
 import paho.mqtt.client as mqtt
 import json
+from bucket_setting import Component
 
 
 app = Flask(__name__)
@@ -15,6 +16,17 @@ url = "http://localhost:8086"
 bucket = "iot_smart_house"
 influxdb_client = InfluxDBClient(url=url, token=token, org=org)
 
+# Creating buckets
+buckets_api = influxdb_client.buckets_api()
+
+for comp in Component:
+    bucket_name = comp.value
+    existing_buckets = [b.name for b in buckets_api.find_buckets().buckets]
+    if bucket_name not in existing_buckets:
+        buckets_api.create_bucket(bucket_name=bucket_name, org=org, retention_rules=BucketRetentionRules(type="expire", every_seconds=0))
+        print(f"Bucket '{bucket_name}' has been created")
+    else:
+        print(f"Bucket '{bucket_name}' already exists")
 
 # MQTT Configuration
 mqtt_client = mqtt.Client()
