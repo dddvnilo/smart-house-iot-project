@@ -8,9 +8,11 @@ import sys
 
 
 class Buzzer(object):
-    def __init__(self,pin, pitch, duration, callback):
-        self.pin = pin
+    def __init__(self, settings, publish_event, callback):
+        self.pin = settings['pin']
+        self.publish_event = publish_event
         self.callback = callback
+        self.settings = settings
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.pin, GPIO.OUT)
     
@@ -21,7 +23,7 @@ class Buzzer(object):
         delay = period / 2
         cycles = int(self.duration * self.pitch)
 
-        self.callback()
+        self.callback(self.settings, self.publish_event)
 
         for i in range(cycles):
             GPIO.output(self.pin, True)

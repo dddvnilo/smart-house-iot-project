@@ -8,8 +8,10 @@ import sys
 
 
 class LED(object):
-    def __init__(self,pin, callback):
-        self.pin = pin
+    def __init__(self, settings, publish_event, callback):
+        self.pin = settings['pin']
+        self.settings = settings
+        self.publish_event = publish_event
         self.callback = callback
         self.led_state = False
 
@@ -22,17 +24,17 @@ class LED(object):
             GPIO.output(self.pin,GPIO.HIGH)
         else:
             GPIO.output(self.pin,GPIO.LOW)
-        self.callback(self.led_state)
+        self.callback(self.led_state, self.settings, self.publish_event)
 
     def turn_led_on(self):
         self.led_state = True
         GPIO.output(self.pin,GPIO.HIGH)
-        self.callback(self.led_state)
+        self.callback(self.led_state, self.settings, self.publish_event)
 
     def turn_led_off(self):
         self.led_state = False
         GPIO.output(self.pin,GPIO.LOW)
-        self.callback(self.led_state)
+        self.callback(self.led_state, self.settings, self.publish_event)
 
 def run_led_loop(led, stop_event):
     def input_listener():

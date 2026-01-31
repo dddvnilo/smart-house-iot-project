@@ -65,7 +65,7 @@ def run_dl(settings, threads, stop_event):
         print("DL sumilator started")
     else:
         print("Starting DL loop")
-        dl = LED(settings["pin"], callback=dl_callback)
+        dl = LED(settings=settings, publish_event=publish_event, callback=dl_callback)
         dl_thread = threading.Thread(target = run_led_loop, args=(dl, stop_event))
         dl_thread.start()
         threads.append(dl_thread)

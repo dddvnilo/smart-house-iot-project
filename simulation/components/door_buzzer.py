@@ -61,7 +61,7 @@ def run_db(settings, threads, stop_event):
         print("DB sumilator started")
     else:
         print("Starting DB loop")
-        db = Buzzer(settings["pin"], settings["pitch"], settings["duration"], db_callback)
+        db = Buzzer(settings=settings, publish_event=publish_event, callback=db_callback)
         db_thread = threading.Thread(target = run_buzz_loop, args=(db, stop_event))
         db_thread.start()
         threads.append(db_thread)
