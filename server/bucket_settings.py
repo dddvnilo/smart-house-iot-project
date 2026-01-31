@@ -6,4 +6,5 @@ class BucketNames(Enum):
     DOOR_MOTION_SENSOR = "door_motion_sensor"
     DOOR_ULTRASONIC_SENSOR = "door_ultrasonic_sensor"
     DOOR_SENSOR = "door_sensor"
-    ACTUATORS = "actuators"
+    DOOR_LIGHT = "door_light"
+    DOOR_BUZZER = "door_buzzer"
