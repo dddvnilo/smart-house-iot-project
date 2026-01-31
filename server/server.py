@@ -66,7 +66,8 @@ def on_connect(client, userdata, flags, rc):
         ("home/front-door/door_motion_sensor", 0), 
         ("home/front-door/door_ultrasonic_sensor", 0), 
         ("home/front-door/door_sensor", 0),
-        ("home/front-door/door_light", 0)
+        ("home/front-door/door_light", 0),
+        ("home/front-door/door_buzzer", 0)
         # posle cemo imati tipa ("home/kitchen/door_sensor", 0)
         ])
 
