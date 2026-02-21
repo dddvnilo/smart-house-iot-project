@@ -1,0 +1,2 @@
+Da li je dovoljno da simulirane komponente rade samo kada se okine event za testiranje, ili treba i da konstantno generisu nasumicne vrednosti sve vreme kao za KT1.
+Npr da li DPIR treba da sve vreme nasumicno odredjuje dal ima pokreta kao za KT1, ili je dovoljno da samo detektuje pokret kada se pokrene test slucaj.
