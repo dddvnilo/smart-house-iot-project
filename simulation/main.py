@@ -1,6 +1,6 @@
 import threading
 from settings import load_settings
-from components import run_ds1, run_dl, run_dus1, run_db, run_dpir1, run_dms, run_dht1
+from components import run_ds1, run_dl, run_dus1, run_db, run_dpir1, run_dms, run_dht1, run_4sd
 
 import time
 
@@ -38,6 +38,9 @@ if __name__ == "__main__":
 
         dht1_settings = settings['DHT1']
         run_dht1(dht1_settings, threads, stop_event)
+
+        display_settings = settings['4SD']
+        run_4sd(display_settings, threads, stop_event)
 
         while True:
             time.sleep(1)

@@ -9,3 +9,4 @@ class BucketNames(Enum):
     DOOR_LIGHT = "door_light"
     DOOR_BUZZER = "door_buzzer"
     BEDROOM_DHT = "dht"
+    FOUR_DIGIT_DISPLAY = "display"
