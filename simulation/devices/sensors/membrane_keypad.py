@@ -36,10 +36,10 @@ class MembraneKeypad(object):
         GPIO.output(line, GPIO.LOW)
 
     def read_all_lines(self):
-        self.readLine(self.pin_rows[0], ["1","2","3","A"])
-        self.readLine(self.pin_rows[1], ["4","5","6","B"])
-        self.readLine(self.pin_rows[2], ["7","8","9","C"])
-        self.readLine(self.pin_rows[3], ["*","0","#","D"])
+        self.read_line(self.pin_rows[0], ["1","2","3","A"])
+        self.read_line(self.pin_rows[1], ["4","5","6","B"])
+        self.read_line(self.pin_rows[2], ["7","8","9","C"])
+        self.read_line(self.pin_rows[3], ["*","0","#","D"])
 
 def run_membrane_keypad_loop(mk, stop_event):
     while True:

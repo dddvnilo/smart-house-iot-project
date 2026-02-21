@@ -11,6 +11,8 @@ class Buzzer(object):
     def __init__(self, settings, publish_event, callback):
         self.pin = settings['pin']
         self.publish_event = publish_event
+        self.pitch = settings['pitch']
+        self.duration = settings['duration']
         self.callback = callback
         self.settings = settings
         GPIO.setmode(GPIO.BCM)
