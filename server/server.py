@@ -55,6 +55,14 @@ def on_db_message(client, userdata, message):
     data = json.loads(message.payload.decode('utf-8'))
     save_to_db(data, bucket=BucketNames.DOOR_BUZZER.value)
 
+def on_rgb_message(client, userdata, message):
+    data = json.loads(message.payload.decode('utf-8'))
+    save_to_db(data, bucket=BucketNames.RGB_LED.value)
+
+def on_ir_message(client, userdata, message):
+    data = json.loads(message.payload.decode('utf-8'))
+    save_to_db(data, bucket=BucketNames.IR.value)
+
 # MQTT Configuration
 mqtt_client = mqtt.Client()
 mqtt_client.connect("127.0.0.1", 1883, 60)
@@ -67,7 +75,9 @@ def on_connect(client, userdata, flags, rc):
         ("home/front-door/door_ultrasonic_sensor", 0), 
         ("home/front-door/door_sensor", 0),
         ("home/front-door/door_light", 0),
-        ("home/front-door/door_buzzer", 0)
+        ("home/front-door/door_buzzer", 0),
+        ("home/bedroom/rgb_led", 0),
+        ("home/bedroom/infrared_receiver", 0)
         # posle cemo imati tipa ("home/kitchen/door_sensor", 0)
         ])
 
@@ -82,6 +92,10 @@ mqtt_client.message_callback_add("home/+/door_ultrasonic_sensor", on_dus_message
 mqtt_client.message_callback_add("home/+/door_sensor", on_ds_message)
 mqtt_client.message_callback_add("home/+/door_light", on_dl_message)
 mqtt_client.message_callback_add("home/+/door_buzzer", on_db_message)
+mqtt_client.message_callback_add("home/bedroom/rgb_led", on_rgb_message)
+mqtt_client.message_callback_add("home/bedroom/infrared_receiver", on_ir_message)
+
+
 # Ovaj plus je 'wildcard' za bilo koje ime, tako da ako stigne poruka na "home/front-door/door_sensor" ili "home/kitchen/door_sensor", oba vode na isti handler
 # Za dalje, mozemo ili napraviti odvojene handlere za to sa kog topica je stiglo, ili u ovom handleru dodati tipa e ako je bas stiglo iz kuhinje uradi nesto drugacije
 
