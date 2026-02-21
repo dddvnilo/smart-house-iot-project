@@ -43,5 +43,12 @@
         "runs_on": "PI1",
         "scan_delay": 0.2,
         "name": "Door membrane switch"
-    }
+    },
+    "DHT1": {
+        "simulated": true,
+        "pin": 17,
+        "runs_on": "PI3",
+        "scan_delay": 2,
+        "name": "Bedroom DHT"
+    } 
 }

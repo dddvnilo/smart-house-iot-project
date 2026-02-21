@@ -55,6 +55,10 @@ def on_db_message(client, userdata, message):
     data = json.loads(message.payload.decode('utf-8'))
     save_to_db(data, bucket=BucketNames.DOOR_BUZZER.value)
 
+def on_dht_message(client, userdata, message):
+    data = json.loads(message.payload.decode('utf-8'))
+    save_to_db(data, bucket=BucketNames.BEDROOM_DHT.value)
+
 # MQTT Configuration
 mqtt_client = mqtt.Client()
 mqtt_client.connect("127.0.0.1", 1883, 60)
@@ -67,7 +71,8 @@ def on_connect(client, userdata, flags, rc):
         ("home/front-door/door_ultrasonic_sensor", 0), 
         ("home/front-door/door_sensor", 0),
         ("home/front-door/door_light", 0),
-        ("home/front-door/door_buzzer", 0)
+        ("home/front-door/door_buzzer", 0),
+        ("home/bedroom/dht", 0)
         # posle cemo imati tipa ("home/kitchen/door_sensor", 0)
         ])
 
@@ -82,6 +87,7 @@ mqtt_client.message_callback_add("home/+/door_ultrasonic_sensor", on_dus_message
 mqtt_client.message_callback_add("home/+/door_sensor", on_ds_message)
 mqtt_client.message_callback_add("home/+/door_light", on_dl_message)
 mqtt_client.message_callback_add("home/+/door_buzzer", on_db_message)
+mqtt_client.message_callback_add("home/+/dht", on_dht_message)
 # Ovaj plus je 'wildcard' za bilo koje ime, tako da ako stigne poruka na "home/front-door/door_sensor" ili "home/kitchen/door_sensor", oba vode na isti handler
 # Za dalje, mozemo ili napraviti odvojene handlere za to sa kog topica je stiglo, ili u ovom handleru dodati tipa e ako je bas stiglo iz kuhinje uradi nesto drugacije
 
