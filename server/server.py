@@ -1,10 +1,11 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, Response
 from influxdb_client import InfluxDBClient, Point, BucketRetentionRules, WritePrecision
 from influxdb_client.client.write_api import SYNCHRONOUS
 import paho.mqtt.client as mqtt
 import json
 from bucket_settings import BucketNames
 from pi_messenger import pi1_turn_alarm_on, pi1_turn_light_on, pi1_turn_alarm_off
+import cv2
 
 app = Flask(__name__)
 
@@ -211,6 +212,43 @@ def retrieve_aggregate_data():
     |> mean()"""
     return handle_influx_query(query)
 
+def generate_mjpeg(camera_url=None, fallback_video="fallback.avi"):
+    cap = None
+
+    if camera_url:
+        cap = cv2.VideoCapture(camera_url)
+
+    # fallback ako nema kamere
+    if not cap or not cap.isOpened():
+        print("Camera not available -> using fallback video")
+        cap = cv2.VideoCapture(fallback_video)
+
+    while True:
+        success, frame = cap.read()
+
+        if not success:
+            cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+            continue
+
+        ret, jpeg = cv2.imencode('.jpg', frame)
+        if not ret:
+            continue
+
+        yield (
+            b'--frame\r\n'
+            b'Content-Type: image/jpeg\r\n\r\n' +
+            jpeg.tobytes() +
+            b'\r\n'
+        )
+
+@app.route('/camera_stream')
+def camera_stream():
+    camera_url = "http://<raspberry_pi_ip>:8080/?action=stream"
+
+    return Response(
+        generate_mjpeg(camera_url=camera_url, fallback_video="resources/static.mjpeg.avi"),
+        mimetype='multipart/x-mixed-replace; boundary=frame'
+    )
 
 if __name__ == '__main__':
     app.run(debug=False ,use_reloader=False)
