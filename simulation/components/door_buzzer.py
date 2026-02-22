@@ -1,4 +1,4 @@
-from simulators.actuators.buzzer import run_buzzer_simulator
+from simulators.actuators.buzzer import Buzzer_simulator, run_buzzer_simulator
 import threading
 import time
 import json
@@ -53,9 +53,12 @@ def db_callback(settings, publish_event):
         publish_event.set()
 
 def run_db(settings, threads, stop_event):
+    db = None
+
     if settings['simulated']:
         print("Starting DB simulator")
-        db_thread = threading.Thread(target = run_buzzer_simulator, args=(db_callback, stop_event, settings, publish_event))
+        db = Buzzer_simulator(settings=settings, publish_event=publish_event, callback=db_callback)
+        db_thread = threading.Thread(target = run_buzzer_simulator, args=(db, stop_event))
         db_thread.start()
         threads.append(db_thread)
         print("DB sumilator started")
@@ -66,3 +69,5 @@ def run_db(settings, threads, stop_event):
         db_thread.start()
         threads.append(db_thread)
         print("DB loop started")
+
+    return db

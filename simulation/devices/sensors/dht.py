@@ -19,6 +19,9 @@ class DHT(object):
         GPIO.setup(self.pin, GPIO.OUT)
         GPIO.output(self.pin, GPIO.HIGH)
 
+    def send_humidity_temperature(self, humidity, temperature):
+        self.callback(humidity, temperature, self.settings, self.publish_event)
+
     def read_sensor(self):
         bits = [0, 0, 0, 0, 0]
         mask = 0x80
@@ -67,7 +70,7 @@ class DHT(object):
             return False
 
         # call callback
-        self.callback(humidity, temperature, self.settings, self.publish_event)
+        self.send_humidity_temperature(humidity, temperature)
         return True
 
 def run_dht_loop(dht, stop_event):

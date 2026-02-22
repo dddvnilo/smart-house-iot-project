@@ -1,4 +1,4 @@
-from simulators.sensors.pir import run_pir_simulator
+from simulators.sensors.pir import PIR_simulator, run_pir_simulator
 import time
 import threading
 from devices.sensors.pir import PIR, run_pir_loop
@@ -56,9 +56,12 @@ def dpir1_callback(motion, settings, publish_event):
         publish_event.set()
 
 def run_dpir1(settings, threads, stop_event):
+    dpir1 = None
+
     if settings['simulated']:
         print("Starting DPIR1 simulator")
-        dpir1_thread = threading.Thread(target = run_pir_simulator, args=(dpir1_callback, stop_event, publish_event, settings))
+        dpir1 = PIR_simulator(settings=settings, publish_event=publish_event, callback=dpir1_callback)
+        dpir1_thread = threading.Thread(target = run_pir_simulator, args=(dpir1, stop_event))
         dpir1_thread.start()
         threads.append(dpir1_thread)
         print("DPIR1 sumilator started")
@@ -69,3 +72,5 @@ def run_dpir1(settings, threads, stop_event):
         dpir1_thread.start()
         threads.append(dpir1_thread)
         print("DPIR1 loop started")
+
+    return dpir1

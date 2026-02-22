@@ -17,6 +17,9 @@ class UDS(object):
         GPIO.setup(self.trig_pin, GPIO.OUT)
         GPIO.setup(self.echo_pin, GPIO.IN)
 
+    def send_distance(self, distance):
+        self.callback(distance, self.settings, self.publish_event)
+
     def get_distance(self):
         GPIO.output(self.trig_pin, False)
         time.sleep(0.2)
@@ -45,7 +48,7 @@ class UDS(object):
         pulse_duration = pulse_end_time - pulse_start_time
         distance = (pulse_duration * 34300)/2
 
-        self.callback(distance, self.settings, self.publish_event)
+        self.send_distance(distance)
 
 def run_uds_loop(uds, stop_event):
     while True:

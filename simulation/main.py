@@ -41,19 +41,21 @@ if __name__ == "__main__":
         run_brgb(brgb_settings, threads, stop_event)
         ir_settings = settings['IR']
         run_ir(ir_settings, threads, stop_event)
-
         dht1_settings = settings['DHT1']
         run_dht1(dht1_settings, threads, stop_event)
 
         display_settings = settings['4SD']
         run_4sd(display_settings, threads, stop_event)
-        '''
+        
 
         gsg_settings = settings['GSG']
         run_gsg(gsg_settings, threads, stop_event)
-
+'''
         lcd_settings = settings['LCD']
         run_lcd(lcd_settings, threads, stop_event)
+
+        display_settings = settings['4SD']
+        run_4sd(display_settings, threads, stop_event)
 
         while True:
             time.sleep(1)

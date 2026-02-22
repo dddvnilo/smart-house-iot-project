@@ -1,6 +1,6 @@
 import time
 import threading
-from simulators.sensors.button import run_button_simulator
+from simulators.sensors.button import Button_simulator, run_button_simulator
 from devices.sensors.button import Button, run_button_loop
 import paho.mqtt.publish as publish
 from broker_settings import HOSTNAME, PORT
@@ -56,9 +56,12 @@ def ds1_callback(unlocked, settings, publish_event):
         publish_event.set()
 
 def run_ds1(settings, threads, stop_event):
+    ds1 = None
+
     if settings['simulated']:
         print("Starting DS1 simulator")
-        ds1_thread = threading.Thread(target = run_button_simulator, args=(ds1_callback, stop_event, publish_event, settings))
+        ds1 = Button_simulator(settings=settings, publish_event=publish_event, callback=ds1_callback)
+        ds1_thread = threading.Thread(target = run_button_simulator, args=(ds1, stop_event))
         ds1_thread.start()
         threads.append(ds1_thread)
         print("DS1 sumilator started")
@@ -69,4 +72,6 @@ def run_ds1(settings, threads, stop_event):
         ds1_thread.start()
         threads.append(ds1_thread)
         print("DS1 loop started")
+
+    return ds1
 

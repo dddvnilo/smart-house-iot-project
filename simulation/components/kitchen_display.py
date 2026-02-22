@@ -1,4 +1,4 @@
-from simulators.actuators.four_digit_display import run_display_simulator
+from simulators.actuators.four_digit_display import FourDigitDisplay_simulator, run_display_simulator
 import threading
 import time
 import json
@@ -53,16 +53,19 @@ def display_callback(value, settings, publish_event):
         publish_event.set()
 
 def run_4sd(settings, threads, stop_event):
+    display = None
+
     if settings['simulated']:
         print("Starting 4SD simulator")
-        display_thread = threading.Thread(target = run_display_simulator, args=(display_callback, stop_event, settings, publish_event))
+        display = FourDigitDisplay_simulator(settings=settings, publish_event=publish_event, callback=display_callback)
+        display_thread = threading.Thread(target = run_display_simulator, args=(display, stop_event))
         display_thread.start()
         threads.append(display_thread)
         print("4SD sumilator started")
     else:
         print("Starting 4SD loop")
         display = FourDigitDisplay(settings=settings, publish_event=publish_event, callback=display_callback)
-        display_thread = threading.Thread(target = run_display_loop, args=(db, stop_event))
+        display_thread = threading.Thread(target = run_display_loop, args=(display, stop_event))
         display_thread.start()
         threads.append(display_thread)
         print("4SD loop started")
