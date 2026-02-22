@@ -1,6 +1,6 @@
 import threading
 from settings import load_settings
-from components import run_ds1, run_dl, run_dus1, run_db, run_dpir1, run_dms, run_dht1, run_4sd
+from components import run_ds1, run_dl, run_dus1, run_db, run_dpir1, run_dms, run_brgb, run_ir, run_dht1, run_4sd
 
 import time
 
@@ -18,6 +18,7 @@ if __name__ == "__main__":
     try:
         
         # ucitavanje podesavanja i pokretanje komponenti
+        """
         ds1_settings = settings['DS1']
         run_ds1(ds1_settings, threads, stop_event)
 
@@ -35,6 +36,12 @@ if __name__ == "__main__":
 
         dms_settings = settings['DMS']
         run_dms(dms_settings, threads, stop_event)
+                """
+
+        brgb_settings = settings['BRGB']
+        run_brgb(brgb_settings, threads, stop_event)
+        ir_settings = settings['IR']
+        run_ir(ir_settings, threads, stop_event)
 
         dht1_settings = settings['DHT1']
         run_dht1(dht1_settings, threads, stop_event)

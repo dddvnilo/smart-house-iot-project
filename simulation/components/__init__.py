@@ -4,5 +4,7 @@ from .door_ultrasonic_sensor_1 import run_dus1
 from .door_buzzer import run_db
 from .door_motion_sensor_1 import run_dpir1
 from .door_membrane_switch import run_dms
+from .bedroom_rgb import run_brgb
+from .bedroom_infrared_receiver import run_ir
 from .bedroom_dht import run_dht1
 from .kitchen_display import run_4sd

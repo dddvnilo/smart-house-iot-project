@@ -27,11 +27,11 @@ class MembraneKeypad(object):
         GPIO.output(line, GPIO.HIGH)
         if(GPIO.input(self.pin_cols[0]) == 1):
             self.callback(characters[0], self.settings, self.publish_event)
-        if(GPIO.input(self.pin_cols[0]) == 1):
+        if(GPIO.input(self.pin_cols[1]) == 1):
             self.callback(characters[1], self.settings, self.publish_event)
-        if(GPIO.input(self.pin_cols[0]) == 1):
+        if(GPIO.input(self.pin_cols[2]) == 1):
             self.callback(characters[2], self.settings, self.publish_event)
-        if(GPIO.input(self.pin_cols[0]) == 1):
+        if(GPIO.input(self.pin_cols[3]) == 1):
             self.callback(characters[3], self.settings, self.publish_event)
         GPIO.output(line, GPIO.LOW)
 
