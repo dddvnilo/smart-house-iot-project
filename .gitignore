@@ -5,3 +5,35 @@ __pycache__/
 *.pyd
 # InfluxDB data
 infrastructure/influxdb/data/
+
+# Node modules
+node_modules/
+
+# Build output
+dist/
+out-tsc/
+
+# Angular CLI files
+.angular/
+.angular-cache/
+
+# IDE / Editor files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.iml
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment files (ako imaš osetljive ključeve)
+src/environments/environment*.ts
+
+# OS files
+.DS_Store
+Thumbs.db
