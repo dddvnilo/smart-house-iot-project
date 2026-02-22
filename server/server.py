@@ -4,6 +4,7 @@ from influxdb_client.client.write_api import SYNCHRONOUS
 import paho.mqtt.client as mqtt
 import json
 from bucket_settings import BucketNames
+from pi_messenger import pi1_turn_alarm_on, pi1_turn_light_on, pi1_turn_alarm_off
 
 app = Flask(__name__)
 
@@ -34,9 +35,30 @@ def on_dms_message(client, userdata, message):
     data = json.loads(message.payload.decode('utf-8'))
     save_to_db(data, bucket=BucketNames.DOOR_MEMBRANE_SWITCH.value)
 
+a = 0
+def check_alarm():
+    global a
+    a += 1
+    if a == 1:
+        pi1_turn_alarm_on()
+    elif a == 3:
+        pi1_turn_alarm_off()
+
 def on_dpir_message(client, userdata, message):
     data = json.loads(message.payload.decode('utf-8'))
     save_to_db(data, bucket=BucketNames.DOOR_MOTION_SENSOR.value)
+
+    parts = message.topic.split("/")
+    location = parts[1]  # front-door ili garage-door
+
+    if location == "front-door" and data["value"]:
+        print("Motion sa prednjih vrata")
+        pi1_turn_light_on()
+        check_alarm()
+    
+    print(client._client_id)
+    print(client)
+    print("Izracunaj dal ulazi ili izlazi na osnovu dist, ishandlaj broj osoba...")
 
 def on_dus_message(client, userdata, message):
     data = json.loads(message.payload.decode('utf-8'))
@@ -81,8 +103,6 @@ def on_lcd_message(client, userdata, message):
 
 # MQTT Configuration
 mqtt_client = mqtt.Client()
-mqtt_client.connect("127.0.0.1", 1883, 60)
-mqtt_client.loop_start()
 
 def on_connect(client, userdata, flags, rc):
     client.subscribe([
@@ -100,7 +120,6 @@ def on_connect(client, userdata, flags, rc):
         ("home/living-room/lcd", 0)
         # posle cemo imati tipa ("home/kitchen/door_sensor", 0)
         ])
-
 def on_disconnect(client, userdata, rc):
     print("Disconnected with result code", rc)
 
@@ -122,7 +141,9 @@ mqtt_client.message_callback_add("home/+/lcd", on_lcd_message)
 # Za dalje, mozemo ili napraviti odvojene handlere za to sa kog topica je stiglo, ili u ovom handleru dodati tipa e ako je bas stiglo iz kuhinje uradi nesto drugacije
 
 mqtt_client.on_disconnect = on_disconnect
-    
+mqtt_client.connect("127.0.0.1", 1883, 60)
+mqtt_client.loop_start()
+
 
 def save_to_db(data, bucket = failsafe_bucket):
     write_api = influxdb_client.write_api(write_options=SYNCHRONOUS)
@@ -192,4 +213,4 @@ def retrieve_aggregate_data():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False ,use_reloader=False)
