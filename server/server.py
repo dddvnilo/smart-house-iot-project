@@ -75,6 +75,10 @@ def on_gsg_message(client, userdata, message):
     data = json.loads(message.payload.decode('utf-8'))
     save_to_db(data, bucket=BucketNames.GYROSCOPE.value)
 
+def on_lcd_message(client, userdata, message):
+    data = json.loads(message.payload.decode('utf-8'))
+    save_to_db(data, bucket=BucketNames.LCD.value)
+
 # MQTT Configuration
 mqtt_client = mqtt.Client()
 mqtt_client.connect("127.0.0.1", 1883, 60)
@@ -92,7 +96,8 @@ def on_connect(client, userdata, flags, rc):
         ("home/bedroom/infrared_receiver", 0),
         ("home/bedroom/dht", 0),
         ("home/kitchen/display", 0),
-        ("home/dining-room/gyroscope", 0)
+        ("home/dining-room/gyroscope", 0),
+        ("home/living-room/lcd", 0)
         # posle cemo imati tipa ("home/kitchen/door_sensor", 0)
         ])
 
@@ -111,7 +116,8 @@ mqtt_client.message_callback_add("home/bedroom/rgb_led", on_rgb_message)
 mqtt_client.message_callback_add("home/bedroom/infrared_receiver", on_ir_message)
 mqtt_client.message_callback_add("home/+/dht", on_dht_message)
 mqtt_client.message_callback_add("home/+/display", on_4sd_message)
-mqtt_client.message_callback_add("home/dining-room/gyroscope", on_gsg_message)
+mqtt_client.message_callback_add("home/+/gyroscope", on_gsg_message)
+mqtt_client.message_callback_add("home/+/lcd", on_lcd_message)
 # Ovaj plus je 'wildcard' za bilo koje ime, tako da ako stigne poruka na "home/front-door/door_sensor" ili "home/kitchen/door_sensor", oba vode na isti handler
 # Za dalje, mozemo ili napraviti odvojene handlere za to sa kog topica je stiglo, ili u ovom handleru dodati tipa e ako je bas stiglo iz kuhinje uradi nesto drugacije
 

@@ -1,6 +1,6 @@
 import threading
 from settings import load_settings
-from components import run_ds1, run_dl, run_dus1, run_db, run_dpir1, run_dms, run_brgb, run_ir, run_dht1, run_4sd, run_gsg
+from components import run_ds1, run_dl, run_dus1, run_db, run_dpir1, run_dms, run_brgb, run_ir, run_dht1, run_4sd, run_gsg, run_lcd
 
 import time
 
@@ -51,6 +51,9 @@ if __name__ == "__main__":
 
         gsg_settings = settings['GSG']
         run_gsg(gsg_settings, threads, stop_event)
+
+        lcd_settings = settings['LCD']
+        run_lcd(lcd_settings, threads, stop_event)
 
         while True:
             time.sleep(1)

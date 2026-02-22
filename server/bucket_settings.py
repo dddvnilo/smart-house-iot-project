@@ -13,3 +13,4 @@ class BucketNames(Enum):
     BEDROOM_DHT = "dht"
     FOUR_DIGIT_DISPLAY = "display"
     GYROSCOPE = "gyroscope"
+    LCD = "lcd"

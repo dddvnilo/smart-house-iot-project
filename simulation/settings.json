@@ -77,5 +77,11 @@
         "scan_delay": 1,
         "runs_on": "PI2",
         "name": "Ikona gyroscope"
+    },
+    "LCD": {
+        "simulated": true,
+        "runs_on": "PI3",
+        "refresh_time": 2,
+        "name": "Living room Display "
     }
 }

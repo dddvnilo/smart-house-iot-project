@@ -18,9 +18,7 @@ class Buzzer(object):
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.pin, GPIO.OUT)
     
-
-    def buzz(self):
-        
+    def buzz(self): 
         period = 1.0 / self.pitch
         delay = period / 2
         cycles = int(self.duration * self.pitch)
