@@ -1,4 +1,4 @@
-from simulators.sensors.gyroscope import run_gsg_simulator
+from simulators.sensors.gyroscope import Gyroscope_simulator, run_gsg_simulator
 import threading
 import time
 from devices.sensors.gyroscope import Gyroscope, run_gsg_loop
@@ -80,9 +80,12 @@ def gsg_callback(gyroscope_data, settings, publish_event):
         publish_event.set()
 
 def run_gsg(settings, threads, stop_event):
+    gyro = None 
+
     if settings['simulated']:
         print("Starting GSG simulator")
-        gsg_thread = threading.Thread(target = run_gsg_simulator, args=(gsg_callback, stop_event, publish_event, settings))
+        gyro = Gyroscope_simulator(settings=settings, publish_event=publish_event, callback=gsg_callback)
+        gsg_thread = threading.Thread(target = run_gsg_simulator, args=(gyro, stop_event))
         gsg_thread.start()
         threads.append(gsg_thread)
         print("GSG sumilator started")
@@ -93,3 +96,5 @@ def run_gsg(settings, threads, stop_event):
         gsg_thread.start()
         threads.append(gsg_thread)
         print("GSG loop started")
+
+    return gyro

@@ -16,6 +16,9 @@ class Gyroscope(object):
         self.mpu = MPU6050.MPU6050()
         self.mpu.dmp_initialize()
 
+    def send_gyro_data(self, data):
+        self.callback(data, self.settings, self.publish_event)
+
     def read_sensor(self):
         try:
             accel = self.mpu.get_acceleration()
@@ -33,7 +36,7 @@ class Gyroscope(object):
             }
 
             # pozovi callback
-            self.callback(data, self.settings, self.publish_event)
+            self.send_gyro_data(data)
 
             return True
 

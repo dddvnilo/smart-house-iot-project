@@ -6,7 +6,7 @@ except:
 import time
 
 
-class MembraneKeypad(object):
+class Membrane_keypad(object):
     def __init__(self,settings,callback, publish_event):
         self.pin_rows = settings["pin_rows"]
         self.pin_cols = settings["pin_cols"]
@@ -23,16 +23,19 @@ class MembraneKeypad(object):
             GPIO.setup(cpin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
         
+    def keypad_pressed(self, keypad):
+        self.callback(keypad, self.settings, self.publish_event)
+
     def read_line(self, line, characters):
         GPIO.output(line, GPIO.HIGH)
         if(GPIO.input(self.pin_cols[0]) == 1):
-            self.callback(characters[0], self.settings, self.publish_event)
+            self.keypad_pressed(characters[0])
         if(GPIO.input(self.pin_cols[1]) == 1):
-            self.callback(characters[1], self.settings, self.publish_event)
+            self.keypad_pressed(characters[1])
         if(GPIO.input(self.pin_cols[2]) == 1):
-            self.callback(characters[2], self.settings, self.publish_event)
+            self.keypad_pressed(characters[2])
         if(GPIO.input(self.pin_cols[3]) == 1):
-            self.callback(characters[3], self.settings, self.publish_event)
+            self.keypad_pressed(characters[3])
         GPIO.output(line, GPIO.LOW)
 
     def read_all_lines(self):
@@ -40,6 +43,8 @@ class MembraneKeypad(object):
         self.read_line(self.pin_rows[1], ["4","5","6","B"])
         self.read_line(self.pin_rows[2], ["7","8","9","C"])
         self.read_line(self.pin_rows[3], ["*","0","#","D"])
+
+
 
 def run_membrane_keypad_loop(mk, stop_event):
     while True:

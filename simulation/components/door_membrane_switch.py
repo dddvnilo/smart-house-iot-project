@@ -1,7 +1,7 @@
-from simulators.sensors.membrane_keypad import run_membrane_keypad_simulator
+from simulators.sensors.membrane_keypad import Membrane_keypad_simulator, run_membrane_keypad_simulator
 import threading
 import time
-from devices.sensors.membrane_keypad import MembraneKeypad, run_membrane_keypad_loop
+from devices.sensors.membrane_keypad import Membrane_keypad, run_membrane_keypad_loop
 import paho.mqtt.publish as publish
 from broker_settings import HOSTNAME, PORT
 import json
@@ -53,16 +53,21 @@ def dms_callback(key, settings, publish_event):
         publish_event.set()
 
 def run_dms(settings, threads, stop_event):
+    dms = None
+
     if settings['simulated']:
         print("Starting DMS simulator")
-        dms_thread = threading.Thread(target = run_membrane_keypad_simulator, args=(dms_callback, stop_event, publish_event, settings))
+        dms = Membrane_keypad_simulator(settings=settings, publish_event=publish_event, callback=dms_callback)
+        dms_thread = threading.Thread(target = run_membrane_keypad_simulator, args=(dms, stop_event))   
         dms_thread.start()
         threads.append(dms_thread)
         print("DMS sumilator started")
     else:
         print("Starting DMS loop")
-        dms = MembraneKeypad(settings=settings, publish_event=publish_event, callback=dms_callback)
+        dms = Membrane_keypad(settings=settings, publish_event=publish_event, callback=dms_callback)
         dms_thread = threading.Thread(target = run_membrane_keypad_loop, args=(dms, stop_event))
         dms_thread.start()
         threads.append(dms_thread)
         print("DMS loop started")
+    
+    return dms

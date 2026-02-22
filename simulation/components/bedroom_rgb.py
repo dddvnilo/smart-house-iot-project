@@ -1,5 +1,5 @@
 from devices.actuators.rgb_led import RGB_LED, run_rgb_loop
-from simulators.actuators.rgb_led import run_rgb_simulator
+from simulators.actuators.rgb_led import RGB_LED_simulator, run_rgb_simulator
 import threading
 import time
 import json
@@ -54,9 +54,12 @@ def brgb_callback(color, settings, publish_event):
         publish_event.set()
 
 def run_brgb(settings, threads, stop_event):
+    brgb = None
+
     if settings['simulated']:
         print("Starting BRGB simulator")
-        brgb_thread = threading.Thread(target = run_rgb_simulator, args=(brgb_callback, stop_event, settings, publish_event))
+        brgb = RGB_LED_simulator(settings=settings, publish_event=publish_event, callback=brgb_callback)
+        brgb_thread = threading.Thread(target = run_rgb_simulator, args=(brgb, stop_event))
         brgb_thread.start()
         threads.append(brgb_thread)
         print("DL sumilator started")
@@ -67,3 +70,5 @@ def run_brgb(settings, threads, stop_event):
         brgb_thread.start()
         threads.append(brgb_thread)
         print("BRGB loop started")
+
+    return brgb

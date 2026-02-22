@@ -1,5 +1,5 @@
 from devices.sensors.infrared_receiver import Infrared_receiver, run_infrared_receiver_loop
-from simulators.sensors.infrared_receiver import run_infrared_receiver_simulator
+from simulators.sensors.infrared_receiver import Infrared_receiver_simulator, run_infrared_receiver_simulator
 import threading
 import time
 import paho.mqtt.publish as publish
@@ -53,16 +53,21 @@ def ir_callback(button, settings, publish_event):
         publish_event.set()
 
 def run_ir(settings, threads, stop_event):
+    ir = None
+
     if settings['simulated']:
         print("Starting IR simulator")
-        ir_thread = threading.Thread(target = run_infrared_receiver_simulator, args=(ir_callback, stop_event, publish_event, settings))
+        ir = Infrared_receiver_simulator(settings=settings, publish_event=publish_event, callback=ir_callback)
+        ir_thread = threading.Thread(target = run_infrared_receiver_simulator, args=(ir, stop_event))
         ir_thread.start()
         threads.append(ir_thread)
         print("IR sumilator started")
     else:
         print("Starting IR loop")
-        dms = Infrared_receiver(settings=settings, publish_event=publish_event, callback=ir_callback)
-        ir_thread = threading.Thread(target = run_infrared_receiver_loop, args=(dms, stop_event))
+        ir = Infrared_receiver(settings=settings, publish_event=publish_event, callback=ir_callback)
+        ir_thread = threading.Thread(target = run_infrared_receiver_loop, args=(ir, stop_event))
         ir_thread.start()
         threads.append(ir_thread)
         print("IR loop started")
+    
+    return ir

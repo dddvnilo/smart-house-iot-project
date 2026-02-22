@@ -39,17 +39,23 @@ class LCD(object):
     def set_data(self, sensors_data):
         self.sensors_data = sensors_data
 
-def run_lcd_loop(display, stop_event):
-    idx = 0
-    while stop_event.is_set():
-        if display.sensors_data:
-            line1, line2 = display.sensors_data[idx % len(display.sensors_data)] # line1 - temperatura | line2 - humidity
-            display.lcd.clear()
-            display.lcd.setCursor(0,0)
-            display.lcd.message(line1[:16])
-            display.lcd.setCursor(0,1)
-            display.lcd.message(line2[:16])
+    def displayed(self,lcd_print):
+        self.callback(lcd_print, self.settings, self.publish_event)
+
+    def display(self):
+        if self.sensors_data:
+            line1, line2 = self.sensors_data[idx % len(self.sensors_data)] # line1 - temperatura | line2 - humidity
+            self.lcd.clear()
+            self.lcd.setCursor(0,0)
+            self.lcd.message(line1[:16])
+            self.lcd.setCursor(0,1)
+            self.lcd.message(line2[:16])
             idx += 1
             lcd_print = line1 + " " + line2
-            display.callback(lcd_print, display.settings, display.publish_event)
-        time.sleep(display.refresh_time)
+            self.displayed(lcd_print)
+
+def run_lcd_loop(lcd_display, stop_event):
+    idx = 0
+    while stop_event.is_set():
+        lcd_display.display()
+        time.sleep(lcd_display.refresh_time)

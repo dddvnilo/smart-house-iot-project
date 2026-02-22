@@ -56,6 +56,7 @@
         "simulated": true,
         "pin": 4,
         "runs_on": "PI3",
+        "scan_delay": 0.2,
         "name": "Bedroom Infrared"
     },
     "DHT1": {

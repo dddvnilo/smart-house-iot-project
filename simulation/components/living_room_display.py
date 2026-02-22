@@ -1,4 +1,4 @@
-from simulators.actuators.lcd import run_lcd_simulator
+from simulators.actuators.lcd import LCD_simulator, run_lcd_simulator
 import threading
 import time
 from devices.actuators.lcd import LCD, run_lcd_loop
@@ -55,14 +55,15 @@ def lcd_callback(lcd_print, settings, publish_event):
 def run_lcd(settings, threads, stop_event):
     if settings['simulated']:
         print("Starting LCD simulator")
-        lcd_thread = threading.Thread(target = run_lcd_simulator, args=(lcd_callback, stop_event, settings, publish_event))
+        lcd_display = LCD_simulator(settings=settings, publish_event=publish_event, callback=lcd_callback)
+        lcd_thread = threading.Thread(target = run_lcd_simulator, args=(lcd_display, stop_event))
         lcd_thread.start()
         threads.append(lcd_thread)
         print("LCD simulator started")
     else:
         print("Starting LCD loop")
-        lcd = LCD(settings=settings, publish_event=publish_event, callback=lcd_callback)
-        lcd_thread = threading.Thread(target = run_lcd_loop, args=(lcd, stop_event))
+        lcd_display = LCD(settings=settings, publish_event=publish_event, callback=lcd_callback)
+        lcd_thread = threading.Thread(target = run_lcd_loop, args=(lcd_display, stop_event))
         lcd_thread.start()
         threads.append(lcd_thread)
         print("LCD loop started")

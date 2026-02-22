@@ -1,4 +1,4 @@
-from simulators.sensors.uds import run_uds_simulator
+from simulators.sensors.uds import UDS_simulator, run_uds_simulator
 import threading
 import time
 from devices.sensors.uds import UDS, run_uds_loop
@@ -56,7 +56,8 @@ def dus1_callback(distance, settings, publish_event):
 def run_dus1(settings, threads, stop_event):
     if settings['simulated']:
         print("Starting DUS1 simulator")
-        dus_thread = threading.Thread(target = run_uds_simulator, args=(dus1_callback, stop_event, publish_event, settings))
+        dus = UDS_simulator(settings=settings, publish_event=publish_event, callback=dus1_callback)
+        dus_thread = threading.Thread(target = run_uds_simulator, args=(dus, stop_event))   
         dus_thread.start()
         threads.append(dus_thread)
         print("DUS1 sumilator started")
