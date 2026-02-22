@@ -195,7 +195,7 @@ def generate_mjpeg(camera_url=None, fallback_video="fallback.avi"):
     cap = None
 
     if camera_url:
-        pass
+        cap = cv2.VideoCapture(camera_url)
 
     # fallback ako nema kamere
     if not cap or not cap.isOpened():
@@ -222,7 +222,7 @@ def generate_mjpeg(camera_url=None, fallback_video="fallback.avi"):
 
 @app.route('/camera_stream')
 def camera_stream():
-    camera_url = None
+    camera_url = "http://<raspberry_pi_ip>:8080/?action=stream"
 
     return Response(
         generate_mjpeg(camera_url=camera_url, fallback_video="resources/static.mjpeg.avi"),
