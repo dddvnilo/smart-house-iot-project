@@ -14,7 +14,7 @@ class FourDigitDisplay(object):
         self.publish_event = publish_event
         self.callback = callback
         self.settings = settings
-        self.blink_colon = False
+        self.is_blinking = False
         self.current_value = "0000"
 
         # mapa cifara
@@ -42,31 +42,43 @@ class FourDigitDisplay(object):
             GPIO.output(d, 1)
 
 
-    def display(self, value, blink_colon):
+    def set_blinking(self,is_blinking):
+        self.is_blinking = is_blinking
+
+
+    def display(self, value):
         self.current_value = str(value).rjust(4)[:4]
-        self.blink_colon = blink_colon
         self.callback(self.current_value, self.settings, self.publish_event)
 
 
     def refresh_once(self):
-            s = self.current_value
+        # global blink celog displeja
+        if self.is_blinking:
+            sec = int(time.time()) % 2
+            if sec == 1:
+                # ugasi sve cifre
+                for d in self.digits:
+                    GPIO.output(d, 1)  # 1 = isključeno (kao u tvom kodu)
+                return  # preskoči crtanje
 
-            for digit in range(4):
-                # segmenti
-                for seg in range(7):
-                    GPIO.output(self.segments[seg], self.num[s[digit]][seg])
+        s = self.current_value
 
-                # decimal point blink
-                if len(self.segments) >= 8:
-                    if self.blink_colon and digit == 1:
-                        sec = int(time.time()) % 2
-                        GPIO.output(self.segments[7], 1 if sec == 0 else 0)
-                    else:
-                        GPIO.output(self.segments[7], 0)
+        for digit in range(4):
+            # segmenti
+            for seg in range(7):
+                GPIO.output(self.segments[seg], self.num[s[digit]][seg])
 
-                GPIO.output(self.digits[digit], 0)
-                time.sleep(0.001)
-                GPIO.output(self.digits[digit], 1)
+            # decimal point blink
+            if len(self.segments) >= 8:
+                if digit == 1:
+                    sec = int(time.time()) % 2
+                    GPIO.output(self.segments[7], 1 if sec == 0 else 0)
+                else:
+                    GPIO.output(self.segments[7], 0)
+
+            GPIO.output(self.digits[digit], 0)
+            time.sleep(0.001)
+            GPIO.output(self.digits[digit], 1)
 
 
 def run_display_loop(display, stop_event):
@@ -74,7 +86,7 @@ def run_display_loop(display, stop_event):
         while not stop_event.is_set():
             val = sys.stdin.readline().strip()
             if len(val) > 0:
-                display.display(val, blink_colon = True)
+                display.display(val)
 
     threading.Thread(target=input_listener, daemon=True).start()
 

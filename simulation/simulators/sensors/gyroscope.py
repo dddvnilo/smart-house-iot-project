@@ -1,6 +1,17 @@
 import time
 import random
 
+class Gyroscope_simulator(object):
+    def __init__(self, settings, callback, publish_event):
+        self.settings = settings
+        self.callback = callback
+        self.publish_event = publish_event
+        self.scan_delay = settings.get("scan_delay", 0.1)
+
+    def send_gyro_data(self, data):
+        self.callback(data, self.settings, self.publish_event)
+
+
 def generate_gyroscope_values():
     while True:
         # simulacija akcelerometra u g
@@ -24,9 +35,9 @@ def generate_gyroscope_values():
             "gyro_dps": [gx, gy, gz]
         }
 
-def run_gsg_simulator(callback, stop_event, publish_event, settings):
+def run_gsg_simulator(gyro, stop_event):
     for sensor_data in generate_gyroscope_values():
-        time.sleep(settings.get("scan_delay", 0.1))
-        callback(sensor_data, settings=settings, publish_event=publish_event)
+        time.sleep(gyro.scan_delay)
+        gyro.send_gyro_data(sensor_data)
         if stop_event.is_set():
             break

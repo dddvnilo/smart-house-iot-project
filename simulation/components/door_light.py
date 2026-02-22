@@ -1,4 +1,4 @@
-from simulators.actuators.led import run_led_simulator
+from simulators.actuators.led import LED_simulator, run_led_simulator
 import threading
 import time
 import json
@@ -57,9 +57,12 @@ def dl_callback(state, settings, publish_event):
         publish_event.set()
 
 def run_dl(settings, threads, stop_event):
+    dl = None
+    
     if settings['simulated']:
         print("Starting DL simulator")
-        dl_thread = threading.Thread(target = run_led_simulator, args=(dl_callback, stop_event, settings, publish_event))
+        dl = LED_simulator(settings=settings, publish_event=publish_event, callback=dl_callback)
+        dl_thread = threading.Thread(target = run_led_simulator, args=(dl, stop_event))
         dl_thread.start()
         threads.append(dl_thread)
         print("DL sumilator started")
@@ -70,3 +73,5 @@ def run_dl(settings, threads, stop_event):
         dl_thread.start()
         threads.append(dl_thread)
         print("DL loop started")
+
+    return dl

@@ -9,7 +9,7 @@ import time
 
 class Infrared_receiver(object):
     def __init__(self,settings,callback, publish_event):
-        self.pin = settings["pi"]
+        self.pin = settings["pin"]
         self.scan_delay = settings["scan_delay"]
         self.callback = callback
 
