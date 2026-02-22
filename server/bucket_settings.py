@@ -12,3 +12,4 @@ class BucketNames(Enum):
     IR = "infrared_receiver"
     BEDROOM_DHT = "dht"
     FOUR_DIGIT_DISPLAY = "display"
+    GYROSCOPE = "gyroscope"

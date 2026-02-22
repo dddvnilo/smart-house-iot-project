@@ -8,3 +8,4 @@ from .bedroom_rgb import run_brgb
 from .bedroom_infrared_receiver import run_ir
 from .bedroom_dht import run_dht1
 from .kitchen_display import run_4sd
+from .gyroscope import run_gsg

@@ -71,5 +71,11 @@
         "digits": [22,27,17,24],
         "runs_on": "PI2",
         "name": "Kitchen Timer"
+    },
+    "GSG": {
+        "simulated": true,
+        "scan_delay": 1,
+        "runs_on": "PI2",
+        "name": "Ikona gyroscope"
     }
 }
