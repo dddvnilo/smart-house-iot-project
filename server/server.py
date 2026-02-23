@@ -6,6 +6,7 @@ import json
 from bucket_settings import BucketNames
 from pi_messenger import pi1_turn_alarm_on, pi1_turn_light_on, pi1_turn_alarm_off
 import cv2
+import math
 
 app = Flask(__name__)
 
@@ -94,9 +95,45 @@ def on_4sd_message(client, userdata, message):
     data = json.loads(message.payload.decode('utf-8'))
     save_to_db(data, bucket=BucketNames.FOUR_DIGIT_DISPLAY.value)
 
+    
+# mzd treba napraviti ovako ness na globalnom fazonu
+# definitivno ne boolean promenljiva al neki queue neka lista neki set
+ALARM_ON = False
 def on_gsg_message(client, userdata, message):
+    global ALARM_ON
+
+    ALARM_G_THRESHOLD = 1.5
+    ALARM_DPS_THRESHOLD = 200.0
+
+    # prag za iskljucenje da bude malo manji da nebi buzzer "trepereo", "stucao", "ludovao"
+    ALARM_G_RESET = 1.2
+    ALARM_DPS_RESET = 150.0
+
     data = json.loads(message.payload.decode('utf-8'))
     save_to_db(data, bucket=BucketNames.GYROSCOPE.value)
+
+    if data.get("measurement") != "Gyroscope":
+        return
+
+    value_str = data.get("value")
+    if not value_str:
+        return
+
+    try:
+        x, y, z = map(float, value_str.split(","))
+        magnitude = math.sqrt(x*x + y*y + z*z)
+    except Exception:
+        return
+
+    if magnitude > ALARM_DPS_THRESHOLD and not ALARM_ON:
+        pi1_turn_alarm_on()
+        print("ALARM ON  | gyro magnitude:", magnitude)
+        ALARM_ON = True
+
+    elif magnitude < ALARM_DPS_RESET and ALARM_ON:
+        pi1_turn_alarm_off()
+        print("ALARM OFF | gyro magnitude:", magnitude)
+        ALARM_ON = False
 
 def on_lcd_message(client, userdata, message):
     data = json.loads(message.payload.decode('utf-8'))
