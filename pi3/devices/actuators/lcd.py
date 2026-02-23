@@ -14,6 +14,7 @@ class LCD(object):
         self.publish_event = publish_event
         self.refresh_time = settings["refresh_time"]
         self.sensors_data = []  # lista tuple [(line1, line2), ...]
+        self.idx = 0
 
         # hardkodovani pinovi i I2C adresa
         self.i2c_address = 0x27
@@ -37,25 +38,26 @@ class LCD(object):
         self.lcd.begin(16,2)
 
     def set_data(self, sensors_data):
-        self.sensors_data = sensors_data
+        with threading.Lock():
+            self.sensors_data = sensors_data
 
     def displayed(self,lcd_print):
         self.callback(lcd_print, self.settings, self.publish_event)
 
     def display(self):
         if self.sensors_data:
-            line1, line2 = self.sensors_data[idx % len(self.sensors_data)] # line1 - temperatura | line2 - humidity
+            with threading.Lock():
+                line1, line2 = self.sensors_data[self.idx % len(self.sensors_data)] # line1 - temperatura | line2 - humidity
             self.lcd.clear()
             self.lcd.setCursor(0,0)
             self.lcd.message(line1[:16])
             self.lcd.setCursor(0,1)
             self.lcd.message(line2[:16])
-            idx += 1
+            self.idx += 1
             lcd_print = line1 + " " + line2
             self.displayed(lcd_print)
 
 def run_lcd_loop(lcd_display, stop_event):
-    idx = 0
-    while stop_event.is_set():
+    while not stop_event.is_set():
         lcd_display.display()
         time.sleep(lcd_display.refresh_time)

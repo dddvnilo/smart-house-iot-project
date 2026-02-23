@@ -1,13 +1,44 @@
 import threading
 from settings import load_settings
 from components import run_dpir3, run_brgb, run_ir, run_dht1, run_dht2, run_lcd
+import paho.mqtt.client as mqtt
 import time
+import json
 
 try:
     import RPi.GPIO as GPIO
     GPIO.setmode(GPIO.BCM)
 except:
     pass
+
+lcd = None
+
+def lcd_set_values(client, userdata, message):
+    # postavi vrednosti
+    data = json.loads(message.payload.decode())
+    lines = data.get("lines", [])
+    if not lcd:
+        return
+    lcd.set_data(lines)
+
+def on_connect(client, userdata, flags, rc):
+    client.subscribe([ 
+        ("home/living-room/lcd-set-values", 0),
+        ])
+
+def on_disconnect(client, userdata, rc):
+    print("Disconnected with result code", rc)
+
+mqtt_client = mqtt.Client()
+
+mqtt_client.on_connect = on_connect
+mqtt_client.message_callback_add("home/living-room/lcd-set-values", lcd_set_values)
+
+# MQTT Configuration
+mqtt_client.connect("127.0.0.1", 1883, 60)
+mqtt_client.loop_start()
+
+mqtt_client.on_disconnect = on_disconnect
 
 if __name__ == "__main__":
     print('Starting app')
@@ -34,7 +65,7 @@ if __name__ == "__main__":
         run_dht2(dht2_settings, threads, stop_event)
 
         lcd_settings = settings['LCD']
-        run_lcd(lcd_settings, threads, stop_event)
+        lcd = run_lcd(lcd_settings, threads, stop_event)
 
         while True:
             time.sleep(1)

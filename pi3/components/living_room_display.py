@@ -67,3 +67,5 @@ def run_lcd(settings, threads, stop_event):
         lcd_thread.start()
         threads.append(lcd_thread)
         print("LCD loop started")
+    
+    return lcd_display
