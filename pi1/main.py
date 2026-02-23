@@ -4,6 +4,7 @@ from components import run_ds1, run_dl, run_dus1, run_db, run_dpir1, run_dms
 import paho.mqtt.client as mqtt
 import json
 import time
+from broker_settings import HOSTNAME, PORT
 
 try:
     import RPi.GPIO as GPIO
@@ -50,7 +51,7 @@ mqtt_client.message_callback_add("home/front-door/alarm-off", alarm_off)
 
 
 # MQTT Configuration
-mqtt_client.connect("127.0.0.1", 1883, 60)
+mqtt_client.connect(HOSTNAME, PORT, 60)
 mqtt_client.loop_start()
 
 
