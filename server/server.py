@@ -1,3 +1,5 @@
+import threading
+
 from flask import Flask, jsonify, request, Response
 from influxdb_client import InfluxDBClient, Point, BucketRetentionRules, WritePrecision
 from influxdb_client.client.write_api import SYNCHRONOUS
@@ -20,6 +22,9 @@ influxdb_client = InfluxDBClient(url=url, token=token, org=org)
 
 # Creating buckets
 buckets_api = influxdb_client.buckets_api()
+
+alarm_active = {}
+
 
 for comp in BucketNames:
     bucket_name = comp.value
@@ -80,9 +85,47 @@ def on_dus_message(client, userdata, message):
 
     save_to_db(data, bucket=BucketNames.DOOR_ULTRASONIC_SENSOR.value)
 
+door_timers = {}      # čuva timer po lokaciji
+door_states = {}      # pamti trenutno stanje vrata
+
+def trigger_unlocked_alarm(location):
+    # proveri da li su vrata i dalje otključana
+    if door_states.get(location) == True:
+        print(f"ALARM! {location} je otvoren duže od 5 sekundi!")
+        alarm_active[location] = True
+        pi1_turn_alarm_on()
+
 def on_ds_message(client, userdata, message):
     data = json.loads(message.payload.decode('utf-8'))
     save_to_db(data, bucket=BucketNames.DOOR_SENSOR.value)
+
+    parts = message.topic.split("/")
+    location = parts[1]  # front-door ili garage-door
+
+    is_unlocked = data["value"]
+    door_states[location] = is_unlocked
+
+    if is_unlocked:
+        print(f"{location} otkljucana")
+
+        # ako već postoji timer – nemoj praviti novi
+        if location not in door_timers:
+            timer = threading.Timer(5.0, trigger_unlocked_alarm, args=[location])
+            door_timers[location] = timer
+            timer.start()
+
+    else:
+        print(f"{location} zakljucana")
+
+        # ako se zaključa, ugasi alarm i poništi timer
+        if location in door_timers:
+            door_timers[location].cancel()
+            del door_timers[location]
+        if alarm_active.get(location):
+            print("Gasim alarm")
+            alarm_active[location] = False
+            pi1_turn_alarm_off()
+
 
 def on_dl_message(client, userdata, message):
     data = json.loads(message.payload.decode('utf-8'))
