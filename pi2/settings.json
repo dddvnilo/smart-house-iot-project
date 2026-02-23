@@ -4,12 +4,12 @@
         "pin": 17,
         "pull": "up",
         "bouncetime": 100,
-        "runs_on": "PI1",
+        "runs_on": "PI2",
         "name": "Door sensor 1"
     },
     "DPIR1": {
         "simulated": true,
-        "runs_on": "PI1",
+        "runs_on": "PI2",
         "pin": 4,
         "name": "Door motion sensor 1"
     },
@@ -17,16 +17,16 @@
         "simulated": true,
         "trig_pin": 23,
         "echo_pin": 24,
-        "runs_on": "PI1",
+        "runs_on": "PI2",
         "scan_delay": 2,
         "name": "Door ultrasonic sensor 1"
     },
-    "DHT1": {
+    "DHT3": {
         "simulated": true,
         "pin": 17,
-        "runs_on": "PI3",
+        "runs_on": "PI2",
         "scan_delay": 2,
-        "name": "Bedroom DHT"
+        "name": "Kitchen DHT"
     },
     "4SD": {
         "simulated": true,

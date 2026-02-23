@@ -1,0 +1,43 @@
+{
+    "DPIR3": {
+        "simulated": true,
+        "runs_on": "PI3",
+        "pin": 4,
+        "name": "Living room motion sensor"
+    },
+    "BRGB" : {
+        "simulated": true,
+        "red_pin": 12,
+        "green_pin": 13,
+        "blue_pin": 19,
+        "runs_on": "PI3",
+        "name": "Bedroom RGB"
+    },
+    "IR" : {
+        "simulated": true,
+        "pin": 4,
+        "runs_on": "PI3",
+        "scan_delay": 0.2,
+        "name": "Bedroom Infrared"
+    },
+    "DHT1": {
+        "simulated": true,
+        "pin": 17,
+        "runs_on": "PI3",
+        "scan_delay": 2,
+        "name": "Bedroom DHT"
+    },
+    "DHT2": {
+        "simulated": true,
+        "pin": 27,
+        "runs_on": "PI3",
+        "scan_delay": 2,
+        "name": "Master Bedroom DHT"
+    },
+    "LCD": {
+        "simulated": true,
+        "runs_on": "PI3",
+        "refresh_time": 2,
+        "name": "Living room Display"
+    }
+}

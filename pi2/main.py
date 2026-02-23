@@ -1,6 +1,6 @@
 import threading
 from settings import load_settings
-from components import run_ds1, run_dus1, run_dpir1, run_dht1, run_4sd, run_gsg
+from components import run_ds1, run_dus1, run_dpir1, run_dht3, run_4sd, run_gsg
 import time
 
 try:
@@ -27,8 +27,8 @@ if __name__ == "__main__":
         dpir1_settings = settings['DPIR1']
         run_dpir1(dpir1_settings, threads, stop_event)
 
-        dht1_settings = settings['DHT1']
-        run_dht1(dht1_settings, threads, stop_event)
+        dht3_settings = settings['DHT3']
+        run_dht3(dht3_settings, threads, stop_event)
 
         display_settings = settings['4SD']
         run_4sd(display_settings, threads, stop_event)
