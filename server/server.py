@@ -23,6 +23,9 @@ influxdb_client = InfluxDBClient(url=url, token=token, org=org)
 # Creating buckets
 buckets_api = influxdb_client.buckets_api()
 
+alarm_active = {}
+
+
 for comp in BucketNames:
     bucket_name = comp.value
     existing_buckets = [b.name for b in buckets_api.find_buckets().buckets]
@@ -89,6 +92,7 @@ def trigger_unlocked_alarm(location):
     # proveri da li su vrata i dalje otključana
     if door_states.get(location) == True:
         print(f"ALARM! {location} je otvoren duže od 5 sekundi!")
+        alarm_active[location] = True
         pi1_turn_alarm_on()
 
 def on_ds_message(client, userdata, message):
@@ -117,6 +121,10 @@ def on_ds_message(client, userdata, message):
         if location in door_timers:
             door_timers[location].cancel()
             del door_timers[location]
+        if alarm_active.get(location):
+            print("Gasim alarm")
+            alarm_active[location] = False
+            pi1_turn_alarm_off()
 
 
 def on_dl_message(client, userdata, message):
