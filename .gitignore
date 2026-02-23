@@ -6,6 +6,9 @@ __pycache__/
 # InfluxDB data
 infrastructure/influxdb/data/
 
+# Mosquitto broker data
+infrastructure/broker-data/
+
 # Node modules
 node_modules/
 
@@ -31,7 +34,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Environment files (ako imaš osetljive ključeve)
+# Environment files
 src/environments/environment*.ts
 
 # OS files
