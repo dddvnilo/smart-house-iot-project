@@ -114,6 +114,8 @@ def on_dpir_message(client, userdata, message):
             print("Motion iz kuhinje")
         else:
             check_people("Door ultrasonic sensor 2")
+    else:
+        dms_alarm()
 
 def on_dus_message(client, userdata, message):
     data = json.loads(message.payload.decode('utf-8'))
