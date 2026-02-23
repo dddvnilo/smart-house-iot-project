@@ -22,7 +22,27 @@ def run_membrane_keypad_simulator(mk, stop_event):
             '*','0','#','D']
 
     while not stop_event.is_set():
-        if random.random() < 0.2: # 20% sansa da se aktivira
-            key = random.choice(keys)
-            mk.keypad_pressed(key)
-        time.sleep(0.5)
+        time.sleep(1)
+        """
+        mk.keypad_pressed("1")        
+        time.sleep(1)
+        mk.keypad_pressed("3")        
+        time.sleep(1)
+        mk.keypad_pressed("1")
+        time.sleep(1)
+        mk.keypad_pressed("6")
+        time.sleep(1)
+        mk.keypad_pressed("#")
+        """
+        time.sleep(20)
+        mk.keypad_pressed("1")
+        time.sleep(1)
+        mk.keypad_pressed("6")
+        time.sleep(1)
+        mk.keypad_pressed("1")      
+        time.sleep(1)
+        mk.keypad_pressed("6")
+        time.sleep(1)
+        mk.keypad_pressed("#")
+
+        time.sleep(5)

@@ -23,7 +23,7 @@ def run_button_simulator(button, stop_event):
             time.sleep(4)
             button.button_pressed_callback() # edge rising, button pressed
             time.sleep(4)
-            button.button_released_callback() # edge falling, button released
-            time.sleep(10)
-            button.button_pressed_callback() # edge rising, button pressed
+            #button.button_released_callback() # edge falling, button released
+            #time.sleep(10)
+            #button.button_pressed_callback() # edge rising, button pressed
         time.sleep(3)

@@ -70,8 +70,8 @@ if __name__ == "__main__":
         
         # ucitavanje podesavanja i pokretanje komponenti
         
-        ds1_settings = settings['DS1']
-        ds1 = run_ds1(ds1_settings, threads, stop_event)
+        #ds1_settings = settings['DS1']
+        #ds1 = run_ds1(ds1_settings, threads, stop_event)
 
         dl_settings = settings['DL']
         dl = run_dl(dl_settings, threads, stop_event)
@@ -82,11 +82,11 @@ if __name__ == "__main__":
         db_settings = settings['DB']
         db = run_db(db_settings, threads, stop_event)
 
-        #dpir1_settings = settings['DPIR1']
-        #dpir1 = run_dpir1(dpir1_settings, threads, stop_event)
+        dpir1_settings = settings['DPIR1']
+        dpir1 = run_dpir1(dpir1_settings, threads, stop_event)
 
-        #dms_settings = settings['DMS']
-        #dms = run_dms(dms_settings, threads, stop_event)
+        dms_settings = settings['DMS']
+        dms = run_dms(dms_settings, threads, stop_event)
 
         
         while True:
