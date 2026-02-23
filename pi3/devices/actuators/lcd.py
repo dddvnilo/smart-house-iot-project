@@ -1,11 +1,8 @@
-try:
-    from lcd_utils.PCF8574 import PCF8574_GPIO
-    from lcd_utils.Adafruit_LCD1602 import Adafruit_CharLCD
-except:
-    pass
-
 import time
 import threading
+
+from devices.actuators.lcd_utils.Adafruit_LCD1602 import Adafruit_CharLCD
+from devices.actuators.lcd_utils.PCF8574 import PCF8574_GPIO
 
 class LCD(object):
     def __init__(self, settings, publish_event, callback):

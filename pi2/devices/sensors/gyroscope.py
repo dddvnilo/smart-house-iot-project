@@ -1,9 +1,6 @@
-try:
-    from gyroscope_utils import MPU6050
-except:
-    pass
-
 import time
+
+from devices.sensors.gyroscope_utils.MPU6050 import MPU6050
 
 
 class Gyroscope(object):

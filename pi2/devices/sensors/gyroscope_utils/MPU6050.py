@@ -51,9 +51,10 @@ import ctypes
 import time
 import smbus
 import csv
-from MPUConstants import MPUConstants as C
-from Quaternion import Quaternion as Q
-from Quaternion import XYZVector as V
+
+from devices.sensors.gyroscope_utils.MPUConstants import MPUConstants as C
+from devices.sensors.gyroscope_utils.Quaternion import Quaternion as Q
+from devices.sensors.gyroscope_utils.Quaternion import XYZVector as V
 
 
 class MPU6050:
