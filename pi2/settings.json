@@ -1,0 +1,44 @@
+{
+    "DS1": {
+        "simulated": true,
+        "pin": 17,
+        "pull": "up",
+        "bouncetime": 100,
+        "runs_on": "PI1",
+        "name": "Door sensor 1"
+    },
+    "DPIR1": {
+        "simulated": true,
+        "runs_on": "PI1",
+        "pin": 4,
+        "name": "Door motion sensor 1"
+    },
+    "DUS1": {
+        "simulated": true,
+        "trig_pin": 23,
+        "echo_pin": 24,
+        "runs_on": "PI1",
+        "scan_delay": 2,
+        "name": "Door ultrasonic sensor 1"
+    },
+    "DHT1": {
+        "simulated": true,
+        "pin": 17,
+        "runs_on": "PI3",
+        "scan_delay": 2,
+        "name": "Bedroom DHT"
+    },
+    "4SD": {
+        "simulated": true,
+        "segments": [11,4,23,8,7,10,18,25],
+        "digits": [22,27,17,24],
+        "runs_on": "PI2",
+        "name": "Kitchen Timer"
+    },
+    "GSG": {
+        "simulated": true,
+        "scan_delay": 3,
+        "runs_on": "PI2",
+        "name": "Ikona gyroscope"
+    }
+}
