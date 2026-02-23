@@ -33,7 +33,7 @@
         "trig_pin": 23,
         "echo_pin": 24,
         "runs_on": "PI1",
-        "scan_delay": 2,
+        "scan_delay": 0.1,
         "name": "Door ultrasonic sensor 1"
     },
     "DMS" : {

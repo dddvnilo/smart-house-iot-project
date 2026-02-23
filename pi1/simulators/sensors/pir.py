@@ -16,9 +16,9 @@ class PIR_simulator(object):
 
 def run_pir_simulator(pir, stop_event):
     while not stop_event.is_set():
-        if random.random() <= 0.2: # 20% sansa da se aktivira
+        if random.random() <= 1: # 20% sansa da se aktivira
             # Motion detected
             pir.motion_detected() # edge rising
             time.sleep(2)
             pir.no_motion() # edge falling
-        time.sleep(3)
+        time.sleep(5)

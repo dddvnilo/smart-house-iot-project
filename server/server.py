@@ -46,6 +46,16 @@ def check_alarm():
     elif a == 3:
         pi1_turn_alarm_off()
 
+people = 0
+
+def check_people(name):
+    global people
+    direction = get_door_direction(name=name)
+    people += direction
+    if(people<0):
+        people = 0
+    print(people)
+
 def on_dpir_message(client, userdata, message):
     data = json.loads(message.payload.decode('utf-8'))
     save_to_db(data, bucket=BucketNames.DOOR_MOTION_SENSOR.value)
@@ -53,14 +63,17 @@ def on_dpir_message(client, userdata, message):
     parts = message.topic.split("/")
     location = parts[1]  # front-door ili garage-door
 
-    if location == "front-door" and data["value"]:
-        print("Motion sa prednjih vrata")
-        pi1_turn_light_on()
-        check_alarm()
-    
-    print(client._client_id)
-    print(client)
-    print("Izracunaj dal ulazi ili izlazi na osnovu dist, ishandlaj broj osoba...")
+    if location == "front-door":
+        if data["value"]==True:
+            print("Motion sa prednjih vrata")
+            pi1_turn_light_on()
+        else:
+            check_people("Door ultrasonic sensor 1")
+    elif location == "kitchen":
+        if data["value"]==True:
+            print("Motion iz kuhinje")
+        else:
+            check_people("Door ultrasonic sensor 2")
 
 def on_dus_message(client, userdata, message):
     data = json.loads(message.payload.decode('utf-8'))
@@ -232,6 +245,59 @@ def retrieve_simple_data():
   |> keep(columns: ["_time", "_value", "simulated", "runs_on", "name"])
   |> sort(columns: ["_time"])"""
     return handle_influx_query(query)
+
+def get_door_direction(
+    name,
+    bucket: str = "door_ultrasonic_sensor",
+    threshold_cm: float = 3.0
+) -> str:
+    """
+    Checks last 4 seconds of ultrasonic distance data
+    and determines movement direction.
+    """
+
+    flux_query = f"""
+    data = from(bucket: "{bucket}")
+      |> range(start: -4s)
+      |> filter(fn: (r) => r._measurement == "Distance")
+      |> filter(fn: (r) => r._field == "measurement")    
+      |> filter(fn: (r) => r.name == "{name}")
+
+
+    firstHalf = data
+      |> range(start: -4s, stop: -2s)
+      |> mean()
+
+    secondHalf = data
+      |> range(start: -2s)
+      |> mean()
+
+    join(
+      tables: {{f: firstHalf, s: secondHalf}},
+      on: ["_measurement", "_field"]
+    )
+    |> map(fn: (r) => ({{
+        diff: r._value_s - r._value_f
+    }}))
+    """
+
+    try:
+        query_api = influxdb_client.query_api()
+        tables = query_api.query(flux_query, org=org)
+
+        for table in tables:
+            for record in table.records:
+
+                diff = record["diff"]
+
+                if diff < 0:
+                    return 1
+                else:
+                    return -1
+    except Exception as e:
+        return 0
+    return 0
+
 
 # Ovako sam proverio dal se zapisuje za door senror preko grafane
 """ 

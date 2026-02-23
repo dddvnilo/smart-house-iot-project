@@ -1,25 +1,25 @@
 {
-    "DS1": {
+    "DS2": {
         "simulated": true,
         "pin": 17,
         "pull": "up",
         "bouncetime": 100,
         "runs_on": "PI2",
-        "name": "Door sensor 1"
+        "name": "Door sensor 2"
     },
-    "DPIR1": {
+    "DPIR2": {
         "simulated": true,
         "runs_on": "PI2",
         "pin": 4,
-        "name": "Door motion sensor 1"
+        "name": "Door motion sensor 2"
     },
-    "DUS1": {
+    "DUS2": {
         "simulated": true,
         "trig_pin": 23,
         "echo_pin": 24,
         "runs_on": "PI2",
         "scan_delay": 2,
-        "name": "Door ultrasonic sensor 1"
+        "name": "Door ultrasonic sensor 2"
     },
     "DHT3": {
         "simulated": true,
