@@ -27,17 +27,18 @@ if __name__ == "__main__":
         dpir1_settings = settings['DPIR1']
         run_dpir1(dpir1_settings, threads, stop_event)
 
-        dht3_settings = settings['DHT3']
-        run_dht3(dht3_settings, threads, stop_event)
-
         display_settings = settings['4SD']
         run_4sd(display_settings, threads, stop_event)
 
         display_settings = settings['4SD']
         run_4sd(display_settings, threads, stop_event)
-        '''
+        
         gsg_settings = settings['GSG']
         run_gsg(gsg_settings, threads, stop_event)
+        '''
+
+        dht3_settings = settings['DHT3']
+        run_dht3(dht3_settings, threads, stop_event)
 
         while True:
             time.sleep(1)

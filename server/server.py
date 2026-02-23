@@ -153,6 +153,8 @@ def on_connect(client, userdata, flags, rc):
         ("home/bedroom/rgb_led", 0),
         ("home/bedroom/infrared_receiver", 0),
         ("home/bedroom/dht", 0),
+        ("home/master-bedroom/dht", 0),
+        ("home/kitchen/dht", 0),
         ("home/kitchen/display", 0),
         ("home/dining-room/gyroscope", 0),
         ("home/living-room/lcd", 0)
