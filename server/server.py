@@ -1,4 +1,5 @@
 import threading
+import time
 
 from flask import Flask, jsonify, request, Response
 from influxdb_client import InfluxDBClient, Point, BucketRetentionRules, WritePrecision
@@ -44,6 +45,8 @@ def dms_alarm():
             alarm_active["dms"] = True
             print("ALARM! Nije unesena sifra na DMS!")
             pi1_turn_alarm_on()
+            write_alarm_entry()
+
 
 pin = ['1','6','1','6']
 input = []
@@ -60,6 +63,8 @@ def handle_pin(key):
                         alarm_active.clear()
                         alarm_timers.clear()
                         pi1_turn_alarm_off()
+                        write_alarm_exit()
+
                 else:
                     alarm_system_activated = True
                     print("Alarm system activated")
@@ -132,6 +137,8 @@ def trigger_unlocked_alarm(location):
             print(f"ALARM! {location} je otvoren duže od 5 sekundi!")
             alarm_active[location] = True
             pi1_turn_alarm_on()
+            write_alarm_entry()
+
 
 def on_ds_message(client, userdata, message):
     data = json.loads(message.payload.decode('utf-8'))
@@ -171,6 +178,8 @@ def on_ds_message(client, userdata, message):
 
                 if len(alarm_active)==0 :
                     pi1_turn_alarm_off()
+                    write_alarm_exit()
+
 
 
 def on_dl_message(client, userdata, message):
@@ -230,12 +239,15 @@ def on_gsg_message(client, userdata, message):
     if magnitude > ALARM_DPS_THRESHOLD and "gyro" not in alarm_active:
         alarm_active["gyro"] = True
         pi1_turn_alarm_on()
+        write_alarm_entry()
         print("ALARM ON  | gyro magnitude:", magnitude)
 
     elif magnitude < ALARM_DPS_RESET and "gyro" in alarm_active:
         alarm_active.pop("gyro")
         if len(alarm_active) == 0:
             pi1_turn_alarm_off()
+            write_alarm_exit()
+
             print("ALARM OFF | gyro magnitude:", magnitude)
 
 def on_lcd_message(client, userdata, message):
@@ -298,6 +310,25 @@ def save_to_db(data, bucket = failsafe_bucket):
     )
     write_api.write(bucket=bucket, org=org, record=point)
 
+def write_alarm_entry():
+    write_api = influxdb_client.write_api(write_options=SYNCHRONOUS)
+    point = (
+        Point("alarm-status")
+        .tag("name", "alarm")
+        .field("measurement", 1)
+        .time(int(time.time() * 1000), WritePrecision.MS)
+    )
+    write_api.write(bucket=BucketNames.ALARM.value, org=org, record=point)
+
+def write_alarm_exit():
+    write_api = influxdb_client.write_api(write_options=SYNCHRONOUS)
+    point = (
+        Point("alarm-status")
+        .tag("name", "alarm")
+        .field("measurement", 0)
+        .time(int(time.time() * 1000), WritePrecision.MS)
+    )
+    write_api.write(bucket=BucketNames.ALARM.value, org=org, record=point)
 
 # Route to store dummy data
 @app.route('/store_data', methods=['POST'])
