@@ -75,8 +75,8 @@ if __name__ == "__main__":
         dl_settings = settings['DL']
         dl = run_dl(dl_settings, threads, stop_event)
 
-        #dus1_settings = settings['DUS1']
-        #dus1 = run_dus1(dus1_settings, threads, stop_event)
+        dus1_settings = settings['DUS1']
+        dus1 = run_dus1(dus1_settings, threads, stop_event)
 
         db_settings = settings['DB']
         db = run_db(db_settings, threads, stop_event)

@@ -14,10 +14,16 @@ class UDS_simulator(object):
         self.callback(distance, self.settings, self.publish_event)
 
 def run_uds_simulator(uds, stop_event):
-    min_distance=5
-    max_distance=100
+    min_distance=1
+    max_distance=20000
+    step = 1.5
+    distance = 20000
     while not stop_event.is_set():
         # nasumicna udaljenost
-        distance = random.uniform(min_distance, max_distance)
+        distance += step
+        if(distance >= max_distance):
+            step = -1.5
+        if(distance <= min_distance):
+            step = 1.5
         uds.send_distance(distance)
         time.sleep(uds.scan_delay)
