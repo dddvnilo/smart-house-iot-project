@@ -50,7 +50,7 @@ def dl_callback(state, settings, publish_event):
     }
 
     with counter_lock:
-        led_batch.append(('home/front-door/door_light', json.dumps(is_light_on_payload), 0, True))
+        led_batch.append(('home/front-door/door_light', json.dumps(is_light_on_payload), 0, False))
         publish_data_counter += 1
 
     if publish_data_counter >= publish_data_limit:

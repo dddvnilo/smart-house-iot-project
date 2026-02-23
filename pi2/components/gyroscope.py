@@ -72,8 +72,8 @@ def gsg_callback(gyroscope_data, settings, publish_event):
     gsg_payload["value"] = f"{gx:+.1f},{gy:+.1f},{gz:+.1f}"
 
     with counter_lock:
-        gsg_batch.append(('home/dining-room/gyroscope', json.dumps(acl_payload), 0, True))
-        gsg_batch.append(('home/dining-room/gyroscope', json.dumps(gsg_payload), 0, True))
+        gsg_batch.append(('home/dining-room/gyroscope', json.dumps(acl_payload), 0, False))
+        gsg_batch.append(('home/dining-room/gyroscope', json.dumps(gsg_payload), 0, False))
         publish_data_counter += 1
 
     if publish_data_counter >= publish_data_limit:

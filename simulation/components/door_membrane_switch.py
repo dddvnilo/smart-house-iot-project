@@ -46,7 +46,7 @@ def dms_callback(key, settings, publish_event):
     }
 
     with counter_lock:
-        dms_batch.append(('home/front-door/door_membrane_switch', json.dumps(key_pressed_payload), 0, True))
+        dms_batch.append(('home/front-door/door_membrane_switch', json.dumps(key_pressed_payload), 0, False))
         publish_data_counter += 1
 
     if publish_data_counter >= publish_data_limit:

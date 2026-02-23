@@ -46,7 +46,7 @@ def db_callback(settings, publish_event):
     }
 
     with counter_lock:
-        buzz_batch.append(('home/front-door/door_buzzer', json.dumps(buzzer_activated_payload), 0, True))
+        buzz_batch.append(('home/front-door/door_buzzer', json.dumps(buzzer_activated_payload), 0, False))
         publish_data_counter += 1
 
     if publish_data_counter >= publish_data_limit:

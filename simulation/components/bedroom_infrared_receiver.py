@@ -46,7 +46,7 @@ def ir_callback(button, settings, publish_event):
     }
 
     with counter_lock:
-        ir_batch.append(('home/bedroom/infrared_receiver', json.dumps(button_pressed_payload), 0, True))
+        ir_batch.append(('home/bedroom/infrared_receiver', json.dumps(button_pressed_payload), 0, False))
         publish_data_counter += 1
 
     if publish_data_counter >= publish_data_limit:
