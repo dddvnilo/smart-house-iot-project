@@ -47,7 +47,7 @@ def brgb_callback(color, settings, publish_event):
     }
 
     with counter_lock:
-        rgb_led_batch.append(('home/bedroom/rgb_led', json.dumps(color_payload), 0, True))
+        rgb_led_batch.append(('home/bedroom/rgb_led', json.dumps(color_payload), 0, False))
         publish_data_counter += 1
 
     if publish_data_counter >= publish_data_limit:

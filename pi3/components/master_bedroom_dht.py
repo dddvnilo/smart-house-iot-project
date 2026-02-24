@@ -57,8 +57,8 @@ def dht1_callback(temperature, humidity, settings, publish_event):
 
     with counter_lock:
         # TODO: nzm jel ovo problem
-        dht_batch.append(('home/master-bedroom/dht', json.dumps(temp_payload), 0, True))
-        dht_batch.append(('home/master-bedroom/dht', json.dumps(humid_payload), 0, True))
+        dht_batch.append(('home/master-bedroom/dht', json.dumps(temp_payload), 0, False))
+        dht_batch.append(('home/master-bedroom/dht', json.dumps(humid_payload), 0, False))
         publish_data_counter += 1
 
     if publish_data_counter >= publish_data_limit:

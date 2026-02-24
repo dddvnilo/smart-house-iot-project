@@ -55,14 +55,14 @@ if __name__ == "__main__":
     try:
         
         # ucitavanje podesavanja i pokretanje komponenti
-        '''
-        ds1_settings = settings['DS1']
+
+        ds1_settings = settings['DS2']
         run_ds1(ds1_settings, threads, stop_event)
 
-        dus1_settings = settings['DUS1']
+        dus1_settings = settings['DUS2']
         run_dus1(dus1_settings, threads, stop_event)
 
-        dpir1_settings = settings['DPIR1']
+        dpir1_settings = settings['DPIR2']
         run_dpir1(dpir1_settings, threads, stop_event)
         
         gsg_settings = settings['GSG']
@@ -70,7 +70,7 @@ if __name__ == "__main__":
 
         dht3_settings = settings['DHT3']
         run_dht3(dht3_settings, threads, stop_event)
-        '''
+
 
         display_settings = settings['4SD']
         display = run_4sd(display_settings, threads, stop_event)

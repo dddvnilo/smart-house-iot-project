@@ -49,7 +49,7 @@ def dpir1_callback(motion, settings, publish_event):
     }
 
     with counter_lock:
-        dpir_batch.append(('home/living-room/door_motion_sensor', json.dumps(motion_payload), 0, True))
+        dpir_batch.append(('home/living-room/door_motion_sensor', json.dumps(motion_payload), 0, False))
         publish_data_counter += 1
 
     if publish_data_counter >= publish_data_limit:
