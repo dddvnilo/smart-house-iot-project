@@ -19,9 +19,12 @@ def pi1_turn_alarm_off():
     # upisi u bazu da je alarm iskljucen...
     print("Iskljuci alarm na pi1")
 
+def pi2_display_set_values(payload):
+    publish.single("home/kitchen/display-set-values", payload=payload, hostname=PI2_HOSTNAME, port=PORT)
+
+def pi2_rgb_led_set_input(payload):
+    publish.single("home/bedroom/rgb_led-set-input", payload=payload, hostname=PI2_HOSTNAME, port=PORT)
+
 def pi3_lcd_set_values(payload):
     publish.single("home/living-room/lcd-set-values", payload=payload, hostname=PI3_HOSTNAME, port=PORT)
     print("Postavi nove vrednosti na LCD")
-
-def pi2_display_set_values(payload):
-    publish.single("home/kitchen/display-set-values", payload=payload, hostname=PI2_HOSTNAME, port=PORT)

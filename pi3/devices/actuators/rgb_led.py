@@ -76,29 +76,25 @@ class RGB_LED(object):
         GPIO.output(self.green_pin, GPIO.HIGH)
         GPIO.output(self.blue_pin, GPIO.HIGH)
         self.callback("LIGHT_BLUE", self.settings, self.publish_event)
+    
+    def led_input(self, key):
+        if key == '1':
+            self.red()
+        elif key == '2':
+            self.green()
+        elif key == '3':
+            self.blue()
+        elif key == '4':
+            self.yellow()
+        elif key == '5':
+            self.purple()
+        elif key == '6':
+            self.light_blue()
+        elif key == '7':
+            self.white()
+        elif key == '8':
+            self.turn_off()
 
 def run_rgb_loop(rgb, stop_event):
-    def input_listener():
-        while not stop_event.is_set():
-            key = sys.stdin.readline().strip().lower()
-            if key == '1':
-                rgb.red()
-            elif key == '2':
-                rgb.green()
-            elif key == '3':
-                rgb.blue()
-            elif key == '4':
-                rgb.yellow()
-            elif key == '5':
-                rgb.purple()
-            elif key == '6':
-                rgb.light_blue()
-            elif key == '7':
-                rgb.white()
-            elif key == '8':
-                rgb.turn_off()
-
-    threading.Thread(target=input_listener, daemon=True).start()
-
     while not stop_event.is_set():
         time.sleep(0.1)
