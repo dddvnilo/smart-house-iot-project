@@ -69,3 +69,5 @@ def run_4sd(settings, threads, stop_event):
         display_thread.start()
         threads.append(display_thread)
         print("4SD loop started")
+
+    return display

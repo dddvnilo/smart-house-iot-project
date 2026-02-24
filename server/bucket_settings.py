@@ -15,3 +15,4 @@ class BucketNames(Enum):
     GYROSCOPE = "gyroscope"
     LCD = "lcd"
     ALARM = "alarm"
+    BUTTON = "button"

@@ -249,6 +249,10 @@ def on_lcd_message(client, userdata, message):
     data = json.loads(message.payload.decode('utf-8'))
     save_to_db(data, bucket=BucketNames.LCD.value)
 
+def on_btn_message(client, userdata, message):
+    data = json.loads(message.payload.decode('utf-8'))
+    save_to_db(data, bucket=BucketNames.BUTTON.value)
+
 # MQTT Configuration
 mqtt_client = mqtt.Client(clean_session=True)
 
@@ -267,7 +271,8 @@ def on_connect(client, userdata, flags, rc):
         ("home/kitchen/dht", 0),
         ("home/kitchen/display", 0),
         ("home/dining-room/gyroscope", 0),
-        ("home/living-room/lcd", 0)
+        ("home/living-room/lcd", 0),
+        ("home/kitchen/button", 0)
         # posle cemo imati tipa ("home/kitchen/door_sensor", 0)
         ])
 def on_disconnect(client, userdata, rc):
@@ -287,6 +292,7 @@ mqtt_client.message_callback_add("home/+/dht", on_dht_message)
 mqtt_client.message_callback_add("home/+/display", on_4sd_message)
 mqtt_client.message_callback_add("home/+/gyroscope", on_gsg_message)
 mqtt_client.message_callback_add("home/+/lcd", on_lcd_message)
+mqtt_client.message_callback_add("home/kitchen/button", on_btn_message)
 # Ovaj plus je 'wildcard' za bilo koje ime, tako da ako stigne poruka na "home/front-door/door_sensor" ili "home/kitchen/door_sensor", oba vode na isti handler
 # Za dalje, mozemo ili napraviti odvojene handlere za to sa kog topica je stiglo, ili u ovom handleru dodati tipa e ako je bas stiglo iz kuhinje uradi nesto drugacije
 
