@@ -28,22 +28,25 @@ class FourDigitDisplay_simulator(object):
         }
 
     def set_blinking(self,is_blinking):
-        self.is_blinking = is_blinking
+        with threading.Lock():
+            self.is_blinking = is_blinking
 
+    def set_value(self, value):
+        with threading.Lock():
+            self.current_value = value
 
-    def display(self, value):
-        self.current_value = str(value).rjust(4)[:4]
-        self.callback(self.current_value, self.settings, self.publish_event)
+    def display(self):
+        with threading.Lock():
+            display_value = str(self.current_value).rjust(4)[:4]
+            should_blink = self.is_blinking
+        
+        if should_blink:
+            display_value += " (blinking)"
+
+        self.callback(display_value, self.settings, self.publish_event)
 
 
 def run_display_simulator(display, stop_event):
-    def input_listener():
-        while not stop_event.is_set():
-            val = sys.stdin.readline().strip()
-            if len(val) > 0:
-                display.display(val)
-
-    threading.Thread(target=input_listener, daemon=True).start()
-
     while not stop_event.is_set():
-        time.sleep(0.1)
+        display.display()
+        time.sleep(1)

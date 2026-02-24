@@ -40,5 +40,13 @@
         "scan_delay": 3,
         "runs_on": "PI2",
         "name": "Ikona gyroscope"
+    },
+    "BTN": {
+        "simulated": true,
+        "pin": 17,
+        "pull": "up",
+        "bouncetime": 100,
+        "runs_on": "PI2",
+        "name": "Kitchen Button"
     }
 }

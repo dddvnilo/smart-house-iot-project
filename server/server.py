@@ -8,7 +8,7 @@ from influxdb_client.client.write_api import SYNCHRONOUS, defaultdict
 import paho.mqtt.client as mqtt
 import json
 from bucket_settings import BucketNames
-from pi_messenger import pi1_turn_alarm_on, pi1_turn_light_on, pi1_turn_alarm_off, pi3_lcd_set_values
+from pi_messenger import pi1_turn_alarm_on, pi1_turn_light_on, pi1_turn_alarm_off, pi2_display_set_values, pi3_lcd_set_values
 import cv2
 import math
 import threading
@@ -254,6 +254,14 @@ def on_lcd_message(client, userdata, message):
     data = json.loads(message.payload.decode('utf-8'))
     save_to_db(data, bucket=BucketNames.LCD.value)
 
+def on_btn_message(client, userdata, message):
+    data = json.loads(message.payload.decode('utf-8'))
+    save_to_db(data, bucket=BucketNames.BUTTON.value)
+
+    # ako je pritisnuto handle-uj tajmer
+    if data.get("value") is True:
+        handle_button_press()
+
 # MQTT Configuration
 mqtt_client = mqtt.Client(clean_session=True)
 
@@ -277,7 +285,8 @@ def on_connect(client, userdata, flags, rc):
         ("home/dining-room/gyroscope", 0),
         ("home/living-room/lcd", 0),
         ("home/living-room/door_motion_sensor", 0),
-        ("home/kitchen/door_sensor", 0)
+        ("home/kitchen/door_sensor", 0),
+        ("home/kitchen/button", 0)
         # posle cemo imati tipa ("home/kitchen/door_sensor", 0)
         ])
 def on_disconnect(client, userdata, rc):
@@ -297,6 +306,7 @@ mqtt_client.message_callback_add("home/+/dht", on_dht_message)
 mqtt_client.message_callback_add("home/+/display", on_4sd_message)
 mqtt_client.message_callback_add("home/+/gyroscope", on_gsg_message)
 mqtt_client.message_callback_add("home/+/lcd", on_lcd_message)
+mqtt_client.message_callback_add("home/kitchen/button", on_btn_message)
 # Ovaj plus je 'wildcard' za bilo koje ime, tako da ako stigne poruka na "home/front-door/door_sensor" ili "home/kitchen/door_sensor", oba vode na isti handler
 # Za dalje, mozemo ili napraviti odvojene handlere za to sa kog topica je stiglo, ili u ovom handleru dodati tipa e ako je bas stiglo iz kuhinje uradi nesto drugacije
 
@@ -601,6 +611,101 @@ def lcd_update():
     # posalji lcd-u
     pi3_lcd_set_values(payload)
     threading.Timer(10, lcd_update).start()  # zakazuje sledeći update
+
+# globalna promenljiva za trenutno stanje tajmera
+# globalne promenljive
+timer_remaining = 0
+timer_lock = threading.Lock()
+countdown_active = False
+is_blinking = False
+is_blinking_stopped = False
+restart = True
+timer_active = False
+pending_seconds = 0  # broj sekundi koji button startuje
+
+def handle_button_press():
+    global timer_remaining, countdown_active, is_blinking, pending_seconds, is_blinking_stopped, restart, timer_active
+    with timer_lock:
+        # Ako timer odbrojava ignorisi klik
+        if countdown_active:
+            print("Klik ignorisan jer timer odbrojava")
+            return
+
+        # Ako timer je 0 i blinking je aktivan -> prekini blinking
+        if timer_remaining == 0 and is_blinking:
+            is_blinking = False
+            is_blinking_stopped = True
+            return
+
+        # Startuje novi timer od vrednosti sa web forme
+        if pending_seconds <= 0:
+            print("Timer nije postavljen, ignorisan klik")
+            return
+
+        if restart:
+            timer_remaining = pending_seconds
+            countdown_active = True
+            timer_active = True
+            restart = False
+            print(f"Tajmer startovan: {timer_remaining} sekundi")
+
+def countdown_timer():
+    global timer_remaining, countdown_active, is_blinking, timer_active
+    while True:
+        time.sleep(1)
+        with timer_lock:
+            if timer_active:
+                if timer_remaining > 0:
+                    timer_remaining -= 1
+                    mmss = format_seconds_mmss(timer_remaining)
+                    payload = json.dumps({"seconds": timer_remaining, "is_blinking": False, "display": mmss})
+                    print(payload)
+                    pi2_display_set_values(payload)
+                elif timer_remaining == 0:
+                    # Timer je stigao do nule -> ukljuci blinking samo ako nije rucno zaustavljeno
+                    countdown_active = False
+                    if not is_blinking_stopped:
+                        is_blinking = True
+                    else:
+                        is_blinking = False  # display treba da zna da je blink zaustavljen
+                    mmss = format_seconds_mmss(timer_remaining)
+                    payload = json.dumps({"seconds": 0, "is_blinking": is_blinking, "display": mmss})
+                    print("Timer zavrsen, blinking:", is_blinking)
+                    print(payload)
+                    pi2_display_set_values(payload)
+            # Ako timer nije aktivan i blinking je True, ništa se ne menja (treba dugme za stop)
+
+# Start countdown u posebnom threadu
+threading.Thread(target=countdown_timer, daemon=True).start()
+
+def format_seconds_mmss(seconds: int) -> str:
+    minutes = seconds // 60
+    secs = seconds % 60
+    return f"{minutes:02d}{secs:02d}"  # npr. 65 sekundi -> "0105"
+
+@app.route('/set_timer', methods=['POST'])
+def set_timer():
+    global pending_seconds, countdown_active, is_blinking, is_blinking_stopped, restart, timer_active
+    data = request.get_json()
+    n = data.get("seconds", 0)
+    if n <= 0:
+        return jsonify({"status": "error", "message": "Invalid number of seconds"})
+
+    with timer_lock:
+        pending_seconds = n
+        countdown_active = False
+        is_blinking = False
+        is_blinking_stopped = False
+        timer_active = False
+        restart = True
+        mmss = format_seconds_mmss(pending_seconds)
+        payload = json.dumps({"seconds": 0, "is_blinking": is_blinking, "display": mmss})
+        print("Timer zavrsen, blinking:", is_blinking)
+        print(payload)
+        pi2_display_set_values(payload)
+        print(f"Timer postavljen na {n} sekundi, startujte klikom na dugme")
+
+    return jsonify({"status": "success", "message": f"Timer set to {n} seconds, start with button press"})
 
 if __name__ == '__main__':
     lcd_update()
