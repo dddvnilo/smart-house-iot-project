@@ -70,14 +70,14 @@ if __name__ == "__main__":
         
         # ucitavanje podesavanja i pokretanje komponenti
         
-        #ds1_settings = settings['DS1']
-        #ds1 = run_ds1(ds1_settings, threads, stop_event)
+        ds1_settings = settings['DS1']
+        ds1 = run_ds1(ds1_settings, threads, stop_event)
 
         dl_settings = settings['DL']
         dl = run_dl(dl_settings, threads, stop_event)
 
-        #dus1_settings = settings['DUS1']
-        #dus1 = run_dus1(dus1_settings, threads, stop_event)
+        dus1_settings = settings['DUS1']
+        dus1 = run_dus1(dus1_settings, threads, stop_event)
 
         db_settings = settings['DB']
         db = run_db(db_settings, threads, stop_event)

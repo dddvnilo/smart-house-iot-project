@@ -49,14 +49,14 @@ if __name__ == "__main__":
         
         # ucitavanje podesavanja i pokretanje komponenti
 
-        # dpir3_settings = settings['DPIR3']
-        # run_dpir3(dpir3_settings, threads, stop_event)
+        dpir3_settings = settings['DPIR3']
+        run_dpir3(dpir3_settings, threads, stop_event)
 
-        # brgb_settings = settings['BRGB']
-        # run_brgb(brgb_settings, threads, stop_event)
+        brgb_settings = settings['BRGB']
+        run_brgb(brgb_settings, threads, stop_event)
 
-        # ir_settings = settings['IR']
-        # run_ir(ir_settings, threads, stop_event)
+        ir_settings = settings['IR']
+        run_ir(ir_settings, threads, stop_event)
 
         dht1_settings = settings['DHT1']
         run_dht1(dht1_settings, threads, stop_event)
