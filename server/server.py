@@ -1,3 +1,6 @@
+import threading
+import time
+
 from flask import Flask, jsonify, request, Response
 from influxdb_client import InfluxDBClient, Point, BucketRetentionRules, WritePrecision
 from influxdb_client.client.write_api import SYNCHRONOUS
@@ -22,6 +25,10 @@ influxdb_client = InfluxDBClient(url=url, token=token, org=org)
 # Creating buckets
 buckets_api = influxdb_client.buckets_api()
 
+alarm_active = {}
+alarm_system_activated = True
+alarm_lock = threading.Lock()
+
 for comp in BucketNames:
     bucket_name = comp.value
     existing_buckets = [b.name for b in buckets_api.find_buckets().buckets]
@@ -33,24 +40,62 @@ for comp in BucketNames:
 
 # Defining MQTT message handlers
 
+def dms_alarm():
+    with alarm_lock:
+        if alarm_system_activated:
+            alarm_active["dms"] = True
+            print("ALARM! Nije unesena sifra na DMS!")
+            pi1_turn_alarm_on()
+            write_alarm_entry()
+
+
+pin = ['1','6','1','6']
+input = []
+
+def handle_pin(key):
+    global input, alarm_system_activated, alarm_active, alarm_timers
+    if key == '#':
+        if input == pin:
+            print("tacna sifra")
+            with alarm_lock:
+                if alarm_system_activated:
+                        alarm_system_activated = False
+                        print("Alarm system deactivated")
+                        alarm_active.clear()
+                        alarm_timers.clear()
+                        pi1_turn_alarm_off()
+                        write_alarm_exit()
+
+                else:
+                    alarm_system_activated = True
+                    print("Alarm system activated")
+        else:
+            print("netacna sifra")
+            if alarm_system_activated:
+                dms_alarm()
+        input = []
+    else:
+        input.append(key)
+        print(input)
+
 def on_dms_message(client, userdata, message):
     # 
     data = json.loads(message.payload.decode('utf-8'))
     save_to_db(data, bucket=BucketNames.DOOR_MEMBRANE_SWITCH.value)
 
-a = 0
-def check_alarm():
-    global a
-    a += 1
-    if a == 1:
-        pi1_turn_alarm_on()
-    elif a == 3:
-        pi1_turn_alarm_off()
+    handle_pin(data["value"])
+
+
 
 people = 0
 
 def check_people(name):
     global people
+    if people == 0 and alarm_system_activated:
+        timer = threading.Timer(15.0, dms_alarm)
+        with alarm_lock:
+            alarm_timers["people"] = timer
+        timer.start()
     direction = get_door_direction(name=name)
     people += direction
     if(people<0):
@@ -75,15 +120,68 @@ def on_dpir_message(client, userdata, message):
             print("Motion iz kuhinje")
         else:
             check_people("Door ultrasonic sensor 2")
+    else:
+        dms_alarm()
 
 def on_dus_message(client, userdata, message):
     data = json.loads(message.payload.decode('utf-8'))
 
     save_to_db(data, bucket=BucketNames.DOOR_ULTRASONIC_SENSOR.value)
 
+alarm_timers = {}      # čuva timer po lokaciji
+door_states = {}      # pamti trenutno stanje vrata
+
+def trigger_unlocked_alarm(location):
+    # proveri da li su vrata i dalje otključana
+    with alarm_lock:
+        if door_states.get(location) == True and alarm_system_activated:
+            print(f"ALARM! {location} je otvoren duže od 5 sekundi!")
+            alarm_active[location] = True
+            pi1_turn_alarm_on()
+            write_alarm_entry()
+
+
 def on_ds_message(client, userdata, message):
     data = json.loads(message.payload.decode('utf-8'))
     save_to_db(data, bucket=BucketNames.DOOR_SENSOR.value)
+
+    parts = message.topic.split("/")
+    location = parts[1]  # front-door ili garage-door
+
+    is_unlocked = data["value"]
+    door_states[location] = is_unlocked
+
+    with alarm_lock:
+        if is_unlocked:
+            print(f"{location} otkljucana")
+
+            # ako već postoji timer – nemoj praviti novi
+            if location not in alarm_timers and alarm_system_activated:
+                timer = threading.Timer(5.0, trigger_unlocked_alarm, args=[location])
+                alarm_timers[location] = timer
+                timer.start()
+
+                if "dms" not in alarm_timers:
+                    timer = threading.Timer(15.0, dms_alarm)
+                    alarm_timers["dms"] = timer
+                    timer.start()
+
+        else:
+            print(f"{location} zakljucana")
+
+            # ako se zaključa, ugasi alarm i poništi timer
+            if location in alarm_timers:
+                alarm_timers[location].cancel()
+                del alarm_timers[location]
+            if alarm_active.get(location):
+
+                alarm_active.pop(location)
+
+                if len(alarm_active)==0 :
+                    pi1_turn_alarm_off()
+                    write_alarm_exit()
+
+
 
 def on_dl_message(client, userdata, message):
     data = json.loads(message.payload.decode('utf-8'))
@@ -126,7 +224,7 @@ def on_gsg_message(client, userdata, message):
     data = json.loads(message.payload.decode('utf-8'))
     save_to_db(data, bucket=BucketNames.GYROSCOPE.value)
 
-    if data.get("measurement") != "Gyroscope":
+    if data.get("measurement") != "Gyroscope" or not alarm_system_activated:
         return
 
     value_str = data.get("value")
@@ -139,22 +237,26 @@ def on_gsg_message(client, userdata, message):
     except Exception:
         return
 
-    if magnitude > ALARM_DPS_THRESHOLD and not ALARM_ON:
+    if magnitude > ALARM_DPS_THRESHOLD and "gyro" not in alarm_active:
+        alarm_active["gyro"] = True
         pi1_turn_alarm_on()
+        write_alarm_entry()
         print("ALARM ON  | gyro magnitude:", magnitude)
-        ALARM_ON = True
 
-    elif magnitude < ALARM_DPS_RESET and ALARM_ON:
-        pi1_turn_alarm_off()
-        print("ALARM OFF | gyro magnitude:", magnitude)
-        ALARM_ON = False
+    elif magnitude < ALARM_DPS_RESET and "gyro" in alarm_active:
+        alarm_active.pop("gyro")
+        if len(alarm_active) == 0:
+            pi1_turn_alarm_off()
+            write_alarm_exit()
+
+            print("ALARM OFF | gyro magnitude:", magnitude)
 
 def on_lcd_message(client, userdata, message):
     data = json.loads(message.payload.decode('utf-8'))
     save_to_db(data, bucket=BucketNames.LCD.value)
 
 # MQTT Configuration
-mqtt_client = mqtt.Client()
+mqtt_client = mqtt.Client(clean_session=True)
 
 def on_connect(client, userdata, flags, rc):
     client.subscribe([
@@ -211,6 +313,25 @@ def save_to_db(data, bucket = failsafe_bucket):
     )
     write_api.write(bucket=bucket, org=org, record=point)
 
+def write_alarm_entry():
+    write_api = influxdb_client.write_api(write_options=SYNCHRONOUS)
+    point = (
+        Point("alarm-status")
+        .tag("name", "alarm")
+        .field("measurement", 1)
+        .time(int(time.time() * 1000), WritePrecision.MS)
+    )
+    write_api.write(bucket=BucketNames.ALARM.value, org=org, record=point)
+
+def write_alarm_exit():
+    write_api = influxdb_client.write_api(write_options=SYNCHRONOUS)
+    point = (
+        Point("alarm-status")
+        .tag("name", "alarm")
+        .field("measurement", 0)
+        .time(int(time.time() * 1000), WritePrecision.MS)
+    )
+    write_api.write(bucket=BucketNames.ALARM.value, org=org, record=point)
 
 # Route to store dummy data
 @app.route('/store_data', methods=['POST'])
@@ -421,3 +542,24 @@ def lcd_update():
 if __name__ == '__main__':
     lcd_update()
     app.run(debug=False ,use_reloader=False)
+
+    """ topics = [
+            "home/front-door/door_sensor",
+            "home/front-door/door_membrane_switch",
+            "home/front-door/door_motion_sensor",
+            "home/front-door/door_ultrasonic_sensor",
+            "home/front-door/door_light",
+            "home/front-door/door_buzzer",
+            "home/bedroom/rgb_led",
+            "home/bedroom/infrared_receiver",
+            "home/bedroom/dht",
+            "home/kitchen/display",
+            "home/dining-room/gyroscope",
+            "home/living-room/lcd"
+        ]
+
+        for topic in topics:
+            mqtt_client.publish(topic, payload="", retain=True)
+
+        mqtt_client.disconnect()
+    """

@@ -14,3 +14,4 @@ class BucketNames(Enum):
     FOUR_DIGIT_DISPLAY = "display"
     GYROSCOPE = "gyroscope"
     LCD = "lcd"
+    ALARM = "alarm"

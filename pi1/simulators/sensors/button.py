@@ -20,6 +20,10 @@ def run_button_simulator(button, stop_event):
         if random.random() <= 0.2: # 20% sansa da se aktivira
             # Motion detected
             button.button_released_callback() # edge falling, button released
-            time.sleep(1)
+            time.sleep(4)
             button.button_pressed_callback() # edge rising, button pressed
+            time.sleep(4)
+            #button.button_released_callback() # edge falling, button released
+            #time.sleep(10)
+            #button.button_pressed_callback() # edge rising, button pressed
         time.sleep(3)

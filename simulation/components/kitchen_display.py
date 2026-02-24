@@ -46,7 +46,7 @@ def display_callback(value, settings, publish_event):
     }
 
     with counter_lock:
-        display_batch.append(('home/kitchen/display', json.dumps(shown_on_display_payload), 0, True))
+        display_batch.append(('home/kitchen/display', json.dumps(shown_on_display_payload), 0, False))
         publish_data_counter += 1
 
     if publish_data_counter >= publish_data_limit:
