@@ -16,15 +16,15 @@ display = None
 def display_set_values(client, userdata, message):
     # postavi vrednosti
     data = json.loads(message.payload.decode())
-    lines = data.get("lines", [])
     if not display:
+        print("nema display-a")
         return
     
-    value = data.get("value")
+    value = data.get("display")
     if value is not None:
         display.set_value(str(value).rjust(4)[:4])  # uvek 4 cifre (ne mora ovde jer vec to radi klasa al za svaki slucaj)
 
-    blinking = data.get("blinking")
+    blinking = data.get("is_blinking")
     if blinking is not None:
         display.set_blinking(bool(blinking))
 
