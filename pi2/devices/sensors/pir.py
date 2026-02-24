@@ -19,10 +19,16 @@ class PIR(object):
 
     def no_motion(self, channel):
         self.callback(False, self.settings, self.publish_event)
+    
+    def determine_motion(self, channel):
+        state = GPIO.input(self.pin)
+        if state == GPIO.HIGH:
+            self.motion_detected(channel)
+        else:
+            self.no_motion(channel)
 
     def start_detecting(self):
-        GPIO.add_event_detect(self.pin, GPIO.RISING, callback=self.motion_detected)
-        GPIO.add_event_detect(self.pin, GPIO.FALLING, callback=self.no_motion)
+        GPIO.add_event_detect(self.pin, GPIO.BOTH, callback=self.determine_motion, bouncetime=100)
 
 def run_pir_loop(pir, stop_event):
     pir.start_detecting()
