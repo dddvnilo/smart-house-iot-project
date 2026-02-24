@@ -2,8 +2,9 @@ import threading
 import time
 
 from flask import Flask, jsonify, request, Response
+from flask_cors import CORS
 from influxdb_client import InfluxDBClient, Point, BucketRetentionRules, WritePrecision
-from influxdb_client.client.write_api import SYNCHRONOUS
+from influxdb_client.client.write_api import SYNCHRONOUS, defaultdict
 import paho.mqtt.client as mqtt
 import json
 from bucket_settings import BucketNames
@@ -13,7 +14,7 @@ import math
 import threading
 
 app = Flask(__name__)
-
+CORS(app, origins=['http://localhost:4200'])
 
 # InfluxDB Configuration
 token = "superToken"
@@ -108,6 +109,10 @@ def on_dpir_message(client, userdata, message):
 
     parts = message.topic.split("/")
     location = parts[1]  # front-door ili garage-door
+
+
+    print(data)
+    print(location)
 
     if location == "front-door":
         if data["value"]==True:
@@ -256,8 +261,11 @@ def on_connect(client, userdata, flags, rc):
     client.subscribe([
         ("home/front-door/door_membrane_switch", 0), 
         ("home/front-door/door_motion_sensor", 0), 
-        ("home/front-door/door_ultrasonic_sensor", 0), 
+        ("home/back-door/door_motion_sensor", 0), 
+        ("home/front-door/door_ultrasonic_sensor", 0),
+        ("home/back-door/door_ultrasonic_sensor", 0), 
         ("home/front-door/door_sensor", 0),
+        ("home/back-door/door_sensor", 0),
         ("home/front-door/door_light", 0),
         ("home/front-door/door_buzzer", 0),
         ("home/bedroom/rgb_led", 0),
@@ -267,7 +275,9 @@ def on_connect(client, userdata, flags, rc):
         ("home/kitchen/dht", 0),
         ("home/kitchen/display", 0),
         ("home/dining-room/gyroscope", 0),
-        ("home/living-room/lcd", 0)
+        ("home/living-room/lcd", 0),
+        ("home/living-room/door_motion_sensor", 0),
+        ("home/kitchen/door_sensor", 0)
         # posle cemo imati tipa ("home/kitchen/door_sensor", 0)
         ])
 def on_disconnect(client, userdata, rc):
@@ -352,6 +362,65 @@ def handle_influx_query(query):
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)})
 
+from collections import defaultdict
+
+def get_latest_device_values():
+    query_api = influxdb_client.query_api()
+    result = defaultdict(lambda: defaultdict(dict))
+
+    for bucket in BucketNames:
+
+        # skip alarm bucket
+        if bucket.value == BucketNames.ALARM.value:
+            continue
+
+        # Special handling for DHT bucket
+        if bucket.value == "dht":  # or BucketNames.DHT.value if you have that enum
+            flux = f"""
+            from(bucket: "{bucket.value}")
+              |> range(start: -1d)
+              |> filter(fn: (r) => r["_field"] == "measurement")
+              |> group(columns: ["runs_on", "name", "_measurement"])
+              |> last()
+            """
+        else:
+            # Regular handling for other buckets
+            flux = f"""
+            from(bucket: "{bucket.value}")
+              |> range(start: -1d)
+              |> filter(fn: (r) => r["_field"] == "measurement")
+              |> group(columns: ["runs_on", "_measurement"])
+              |> last()
+            """
+
+        tables = query_api.query(flux, org=org)
+
+        for table in tables:
+            for record in table.records:
+
+                # SAFETY: skip records without runs_on
+                pi = record.values.get("runs_on")
+                if not pi:
+                    continue
+
+                measurement = record.get_measurement()
+                value = record.get_value()
+
+                # For DHT bucket, use name tag to differentiate sensors
+                if bucket.value == "dht" and pi=="PI3":
+                    sensor_name = record.values.get("name", "unknown")
+                    # Store with sensor name included in the key
+                    result[pi][bucket.value][f"{sensor_name}_{measurement}"] = value
+                else:
+                    # Regular storage for other buckets
+                    result[pi][bucket.value][measurement] = value
+
+    return result
+
+@app.route("/api/latest")
+def latest():
+    data = get_latest_device_values()
+    return jsonify(data)
 
 @app.route('/simple_query', methods=['GET'])
 def retrieve_simple_data():

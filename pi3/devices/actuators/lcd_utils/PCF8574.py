@@ -1,4 +1,7 @@
-import smbus
+try:
+	import smbus
+except:
+    pass
 import time
 class PCF8574_I2C(object):
 	OUPUT = 0

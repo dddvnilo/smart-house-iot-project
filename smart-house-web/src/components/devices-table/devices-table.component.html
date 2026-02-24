@@ -1,0 +1,51 @@
+<table class="device-table">
+  <thead>
+  <tr>
+    <th>PI</th>
+    <th>Code</th>
+    <th>Name</th>
+    <th>Measurement</th>
+    <th>Latest Value</th>
+  </tr>
+  </thead>
+
+  <tbody *ngFor="let group of piGroups">
+
+  <!-- PI group header (rowspan handled dynamically) -->
+  <ng-container *ngFor="let device of group.devices">
+    <ng-container *ngFor="let m of device.measurements; let i = index">
+
+      <tr>
+        <!-- PI column -->
+        <td
+          *ngIf="device === group.devices[0] && i === 0"
+          [attr.rowspan]="getTotalRows(group)"
+          [style.background]="group.color"
+          class="pi-cell">
+          {{ group.name }}
+        </td>
+
+        <!-- Code -->
+        <td *ngIf="i === 0"
+            [attr.rowspan]="device.measurements.length">
+          {{ device.code }}
+        </td>
+
+        <!-- Name -->
+        <td *ngIf="i === 0"
+            [attr.rowspan]="device.measurements.length">
+          {{ device.name }}
+        </td>
+
+        <!-- Measurement -->
+        <td>{{ m.measurement }}</td>
+
+        <!-- Latest Value -->
+        <td>{{ m.latestValue }}</td>
+      </tr>
+
+    </ng-container>
+  </ng-container>
+
+  </tbody>
+</table>
