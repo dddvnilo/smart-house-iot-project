@@ -7,9 +7,10 @@ from influxdb_client.client.write_api import SYNCHRONOUS
 import paho.mqtt.client as mqtt
 import json
 from bucket_settings import BucketNames
-from pi_messenger import pi1_turn_alarm_on, pi1_turn_light_on, pi1_turn_alarm_off
+from pi_messenger import pi1_turn_alarm_on, pi1_turn_light_on, pi1_turn_alarm_off, pi3_lcd_set_values
 import cv2
 import math
+import threading
 
 app = Flask(__name__)
 
@@ -206,13 +207,7 @@ def on_4sd_message(client, userdata, message):
     data = json.loads(message.payload.decode('utf-8'))
     save_to_db(data, bucket=BucketNames.FOUR_DIGIT_DISPLAY.value)
 
-    
-# mzd treba napraviti ovako ness na globalnom fazonu
-# definitivno ne boolean promenljiva al neki queue neka lista neki set
-ALARM_ON = False
 def on_gsg_message(client, userdata, message):
-    global ALARM_ON
-
     ALARM_G_THRESHOLD = 1.5
     ALARM_DPS_THRESHOLD = 200.0
 
@@ -268,6 +263,8 @@ def on_connect(client, userdata, flags, rc):
         ("home/bedroom/rgb_led", 0),
         ("home/bedroom/infrared_receiver", 0),
         ("home/bedroom/dht", 0),
+        ("home/master-bedroom/dht", 0),
+        ("home/kitchen/dht", 0),
         ("home/kitchen/display", 0),
         ("home/dining-room/gyroscope", 0),
         ("home/living-room/lcd", 0)
@@ -418,6 +415,56 @@ def get_door_direction(
     return 0
 
 
+def get_last_dht_values():
+    query = f'''
+    from(bucket: "{BucketNames.BEDROOM_DHT.value}")
+      |> range(start: -1h)
+      |> filter(fn: (r) =>
+          r._measurement == "Temperature" or
+          r._measurement == "Humidity"
+      )
+      |> group(columns: ["name", "_measurement"])
+      |> last()
+    '''
+
+    tables = influxdb_client.query_api().query(query, org=org)
+
+    dht = {}
+
+    for table in tables:
+        for r in table.records:
+            name = r["name"]
+            meas = r["_measurement"]
+            val = r["_value"]
+
+            if name not in dht:
+                dht[name] = {"temp": None, "hum": None}
+
+            if meas == "Temperature":
+                dht[name]["temp"] = val
+            else:
+                dht[name]["hum"] = val
+
+    name_map = {
+    "Bedroom DHT": "DHT1",
+    "Master Bedroom DHT": "DHT2",
+    "Kitchen DHT": "DHT3"
+    }
+
+    result = []
+
+    for influx_name, label in name_map.items():
+        if influx_name in dht:
+            temp = dht[influx_name]["temp"]
+            hum  = dht[influx_name]["hum"]
+
+            if temp is not None and hum is not None:
+                line1 = f"{label} T:{temp:.1f}C"
+                line2 = f"{label} H:{hum:.1f}%"
+                result.append((line1, line2))
+
+    return result
+
 # Ovako sam proverio dal se zapisuje za door senror preko grafane
 """ 
 from(bucket: "door_sensor")
@@ -474,7 +521,20 @@ def camera_stream():
         mimetype='multipart/x-mixed-replace; boundary=frame'
     )
 
+# salje LCD-u najnovije zapisane vrednosti
+def lcd_update():
+    # dobavi poslednje upisane vrednosti u bazu
+    values = get_last_dht_values()
+    # spakuj u payload
+    payload = json.dumps({
+        "lines": values
+    })
+    # posalji lcd-u
+    pi3_lcd_set_values(payload)
+    threading.Timer(10, lcd_update).start()  # zakazuje sledeći update
+
 if __name__ == '__main__':
+    lcd_update()
     app.run(debug=False ,use_reloader=False)
 
     """ topics = [

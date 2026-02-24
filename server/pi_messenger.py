@@ -2,7 +2,7 @@ import threading
 import time
 import json
 import paho.mqtt.publish as publish
-from broker_settings import PI1_HOSTNAME, PORT
+from broker_settings import PI1_HOSTNAME, PI3_HOSTNAME, PORT
 
 
 def pi1_turn_light_on():
@@ -18,3 +18,7 @@ def pi1_turn_alarm_off():
     publish.single("home/front-door/alarm-off", hostname=PI1_HOSTNAME, port=PORT)
     # upisi u bazu da je alarm iskljucen...
     print("Iskljuci alarm na pi1")
+
+def pi3_lcd_set_values(payload):
+    publish.single("home/living-room/lcd-set-values", payload=payload, hostname=PI3_HOSTNAME, port=PORT)
+    print("Postavi nove vrednosti na LCD")
