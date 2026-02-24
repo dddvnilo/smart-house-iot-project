@@ -13,21 +13,35 @@ class Button(object):
         self.callback = callback
         self.settings = settings
         self.publish_event = publish_event
-        GPIO.setup(self.pin, GPIO.IN, pull_up_down = settings["pull"])
+        GPIO.setup(self.pin, GPIO.IN, pull_up_down = self.pmode)
         
     def button_pressed_callback(self):
         self.callback(False, self.settings, self.publish_event)
 
     def button_released_callback(self):
         self.callback(True, self.settings, self.publish_event)
+    
+    def determine_callback(self, channel):
+        state = GPIO.input(self.pin)
+
+        if self.pmode == GPIO.PUD_UP:
+            pressed = (state == GPIO.LOW)
+        else:
+            pressed = (state == GPIO.HIGH)
+
+        if pressed:
+            self.button_pressed_callback()
+        else:
+            self.button_released_callback()
+
 
     def start_detecting(self):
-        if(self.pmode == GPIO.PUD_UP):
-            GPIO.add_event_detect(self.pin, GPIO.RISING, callback = self.button_released_callback, bouncetime = 100)
-            GPIO.add_event_detect(self.pin,GPIO.FALLING,callback= self.button_pressed_callback, bouncetime=100)
-        elif(self.pmode == GPIO.PUD_DOWN):
-            GPIO.add_event_detect(self.pin, GPIO.FALLING, callback = self.button_released_callback, bouncetime = 100)
-            GPIO.add_event_detect(self.pin,GPIO.RISING,callback= self.button_pressed_callback, bouncetime=100)
+        GPIO.add_event_detect(
+            self.pin,
+            GPIO.BOTH,
+            callback=self.determine_callback,
+            bouncetime=120
+        )
 
 def run_button_loop(button, stop_event):
     button.start_detecting()
