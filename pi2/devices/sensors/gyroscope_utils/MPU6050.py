@@ -49,7 +49,10 @@ THE SOFTWARE.
 import math
 import ctypes
 import time
-import smbus
+try:
+    import smbus
+except:
+    pass
 import csv
 
 from devices.sensors.gyroscope_utils.MPUConstants import MPUConstants as C

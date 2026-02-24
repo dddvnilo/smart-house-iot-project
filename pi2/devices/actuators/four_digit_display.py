@@ -43,8 +43,12 @@ class FourDigitDisplay(object):
 
 
     def set_blinking(self,is_blinking):
-        self.is_blinking = is_blinking
-
+        with threading.Lock():
+            self.is_blinking = is_blinking
+    
+    def set_value(self, value):
+        with threading.Lock():
+            self.current_value = value
 
     def display(self, value):
         self.current_value = str(value).rjust(4)[:4]
@@ -53,15 +57,17 @@ class FourDigitDisplay(object):
 
     def refresh_once(self):
         # global blink celog displeja
-        if self.is_blinking:
-            sec = int(time.time()) % 2
-            if sec == 1:
-                # ugasi sve cifre
-                for d in self.digits:
-                    GPIO.output(d, 1)  # 1 = isključeno (kao u tvom kodu)
-                return  # preskoči crtanje
+        with threading.Lock():
+            if self.is_blinking:
+                sec = int(time.time()) % 2
+                if sec == 1:
+                    # ugasi sve cifre
+                    for d in self.digits:
+                        GPIO.output(d, 1)  # 1 = isključeno (kao u tvom kodu)
+                    return  # preskoči crtanje
 
-        s = self.current_value
+        with threading.Lock():
+            s = self.current_value
 
         for digit in range(4):
             # segmenti

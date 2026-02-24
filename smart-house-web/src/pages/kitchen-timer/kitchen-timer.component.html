@@ -1,0 +1,17 @@
+<div>
+  <h2>Set Timer</h2>
+  <form (ngSubmit)="submitTimer()">
+    <label for="seconds">Seconds (max 5999):</label>
+    <input
+      type="number"
+      id="seconds"
+      name="seconds"
+      [(ngModel)]="seconds"
+      min="1"
+      max="5999"
+      required>
+    <button type="submit">Start Timer</button>
+  </form>
+  <p>test</p>
+  <p *ngIf="statusMessage">{{ statusMessage }}</p>
+</div>
