@@ -207,13 +207,7 @@ def on_4sd_message(client, userdata, message):
     data = json.loads(message.payload.decode('utf-8'))
     save_to_db(data, bucket=BucketNames.FOUR_DIGIT_DISPLAY.value)
 
-    
-# mzd treba napraviti ovako ness na globalnom fazonu
-# definitivno ne boolean promenljiva al neki queue neka lista neki set
-ALARM_ON = False
 def on_gsg_message(client, userdata, message):
-    global ALARM_ON
-
     ALARM_G_THRESHOLD = 1.5
     ALARM_DPS_THRESHOLD = 200.0
 
