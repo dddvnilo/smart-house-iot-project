@@ -46,7 +46,7 @@ def lcd_callback(lcd_print, settings, publish_event):
     }
 
     with counter_lock:
-        lcd_batch.append(('home/living-room/lcd', json.dumps(shown_on_lcd_payload), 0, True))
+        lcd_batch.append(('home/living-room/lcd', json.dumps(shown_on_lcd_payload), 0, False))
         publish_data_counter += 1
 
     if publish_data_counter >= publish_data_limit:

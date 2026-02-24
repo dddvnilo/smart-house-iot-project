@@ -1,3 +1,6 @@
+import eventlet
+eventlet.monkey_patch()
+
 import threading
 import time
 
@@ -12,9 +15,17 @@ from pi_messenger import pi1_turn_alarm_on, pi1_turn_light_on, pi1_turn_alarm_of
 import cv2
 import math
 import threading
+from flask import Flask
+from flask_socketio import SocketIO, emit
+
+
+import threading
+import time
 
 app = Flask(__name__)
 CORS(app, origins=['http://localhost:4200'])
+app.config['SECRET_KEY'] = 'secret!'
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet")
 
 # InfluxDB Configuration
 token = "superToken"
@@ -41,6 +52,15 @@ for comp in BucketNames:
 
 # Defining MQTT message handlers
 
+def alarm_on_broadcast():
+    socketio.emit("alarm", True)
+    print("~~~~~~~~~~~~~~~~~ SOCKET ALARM ON")
+
+def alarm_off_broadcast():
+    socketio.emit("alarm", False)
+    print("~~~~~~~~~~~~~~~~~ SOCKET ALARM OFF")
+
+
 def dms_alarm():
     with alarm_lock:
         if alarm_system_activated:
@@ -48,9 +68,11 @@ def dms_alarm():
             print("ALARM! Nije unesena sifra na DMS!")
             pi1_turn_alarm_on()
             write_alarm_entry()
+            alarm_on_broadcast()
 
 
 pin = ['1','6','1','6']
+pin_whole = 1616
 input = []
 
 def handle_pin(key):
@@ -66,7 +88,7 @@ def handle_pin(key):
                         alarm_timers.clear()
                         pi1_turn_alarm_off()
                         write_alarm_exit()
-
+                        alarm_off_broadcast()
                 else:
                     alarm_system_activated = True
                     print("Alarm system activated")
@@ -93,6 +115,9 @@ people = 0
 def check_people(name):
     global people
     if people == 0 and alarm_system_activated:
+        if name == "DPIR3":
+            dms_alarm()
+            return
         timer = threading.Timer(15.0, dms_alarm)
         with alarm_lock:
             alarm_timers["people"] = timer
@@ -126,7 +151,7 @@ def on_dpir_message(client, userdata, message):
         else:
             check_people("Door ultrasonic sensor 2")
     else:
-        dms_alarm()
+        check_people("DPIR3")
 
 def on_dus_message(client, userdata, message):
     data = json.loads(message.payload.decode('utf-8'))
@@ -143,6 +168,7 @@ def trigger_unlocked_alarm(location):
             print(f"ALARM! {location} je otvoren duže od 5 sekundi!")
             alarm_active[location] = True
             pi1_turn_alarm_on()
+            alarm_on_broadcast()
             write_alarm_entry()
 
 
@@ -184,6 +210,7 @@ def on_ds_message(client, userdata, message):
 
                 if len(alarm_active)==0 :
                     pi1_turn_alarm_off()
+                    alarm_off_broadcast()
                     write_alarm_exit()
 
 
@@ -243,6 +270,7 @@ def on_gsg_message(client, userdata, message):
     if magnitude > ALARM_DPS_THRESHOLD and "gyro" not in alarm_active:
         alarm_active["gyro"] = True
         pi1_turn_alarm_on()
+        alarm_on_broadcast()
         write_alarm_entry()
         print("ALARM ON  | gyro magnitude:", magnitude)
 
@@ -250,6 +278,7 @@ def on_gsg_message(client, userdata, message):
         alarm_active.pop("gyro")
         if len(alarm_active) == 0:
             pi1_turn_alarm_off()
+            alarm_off_broadcast()
             write_alarm_exit()
 
             print("ALARM OFF | gyro magnitude:", magnitude)
@@ -358,6 +387,44 @@ def store_data():
         data = request.get_json()
         store_data(data)
         return jsonify({"status": "success"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)})
+
+@app.route('/people', methods=['GET'])
+def find_people():
+    global people
+    try:
+        return jsonify({"people": people})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)})
+    
+@app.route('/enter_pin', methods=['POST'])
+def enter_pin():
+    global alarm_system_activated, alarm_active, alarm_timers
+    try:
+        data = request.get_json()
+        input = data["pin"]
+        print(input)
+        if input == "1616":
+            print("Correct pin")
+            with alarm_lock:
+                if alarm_system_activated:
+                        alarm_system_activated = False
+                        print("Alarm system deactivated")
+                        alarm_active.clear()
+                        alarm_timers.clear()
+                        pi1_turn_alarm_off()
+                        write_alarm_exit()
+                        alarm_off_broadcast()
+                else:
+                    alarm_system_activated = True
+                    print("Alarm system activated")
+            return jsonify({"status": "success"})
+        else:
+            print("netacna sifra")
+            if alarm_system_activated:
+                dms_alarm()
+            return jsonify({"status": "fail"})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)})
 
@@ -723,27 +790,43 @@ def rgb_led_input():
     color = ''
     return jsonify({"status": "success", "message": f"Bedroom rgb led set to {color}."})
 
+@socketio.on('connect')
+def handle_connect():
+    print("Client connected")
+
+
 if __name__ == '__main__':
-    lcd_update()
-    app.run(debug=False ,use_reloader=False)
-
-    """ topics = [
-            "home/front-door/door_sensor",
-            "home/front-door/door_membrane_switch",
-            "home/front-door/door_motion_sensor",
-            "home/front-door/door_ultrasonic_sensor",
-            "home/front-door/door_light",
-            "home/front-door/door_buzzer",
-            "home/bedroom/rgb_led",
-            "home/bedroom/infrared_receiver",
-            "home/bedroom/dht",
-            "home/kitchen/display",
-            "home/dining-room/gyroscope",
-            "home/living-room/lcd"
-        ]
-
-        for topic in topics:
-            mqtt_client.publish(topic, payload="", retain=True)
-
-        mqtt_client.disconnect()
     """
+    topics = [
+        "home/front-door/door_membrane_switch", 
+        "home/front-door/door_motion_sensor",
+        "home/back-door/door_motion_sensor",
+        "home/front-door/door_ultrasonic_sensor",
+        "home/back-door/door_ultrasonic_sensor",
+        "home/front-door/door_sensor",
+        "home/back-door/door_sensor",
+        "home/front-door/door_light", 
+        "home/front-door/door_buzzer", 
+        "home/bedroom/rgb_led",
+        "home/bedroom/infrared_receiver", 
+        "home/bedroom/dht", 
+        "home/master-bedroom/dht", 
+        "home/kitchen/dht", 
+        "home/kitchen/display", 
+        "home/dining-room/gyroscope", 
+        "home/living-room/lcd",
+        "home/living-room/door_motion_sensor",
+        "home/kitchen/door_sensor", 
+        "home/kitchen/button",
+        ]
+    for topic in topics:
+        mqtt_client.publish(topic, payload="", retain=True)
+
+    mqtt_client.disconnect()
+    """
+
+    lcd_update()
+    socketio.run(app, host="127.0.0.1", port=5000)
+    #app.run(debug=False ,use_reloader=False)
+
+

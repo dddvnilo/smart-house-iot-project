@@ -1,0 +1,15 @@
+<div class="alarm-container">
+  <h1>ALARM ACTIVE</h1>
+
+  <input
+    type="password"
+    [(ngModel)]="pin"
+    placeholder="Enter PIN"
+  />
+
+  <button (click)="submitPin()">Unlock</button>
+
+  <p class="error" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </p>
+</div>

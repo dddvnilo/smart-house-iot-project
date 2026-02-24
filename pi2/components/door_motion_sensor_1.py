@@ -8,7 +8,7 @@ import json
 
 dpir_batch = []
 publish_data_counter = 0
-publish_data_limit = 5
+publish_data_limit = 1
 counter_lock = threading.Lock()
 
 def publisher_task(event, dpir_batch):
@@ -49,7 +49,7 @@ def dpir1_callback(motion, settings, publish_event):
     }
 
     with counter_lock:
-        dpir_batch.append(('home/front-door/door_motion_sensor', json.dumps(motion_payload), 0, False))
+        dpir_batch.append(('home/back-door/door_motion_sensor', json.dumps(motion_payload), 0, False))
         publish_data_counter += 1
 
     if publish_data_counter >= publish_data_limit:

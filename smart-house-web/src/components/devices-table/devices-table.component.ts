@@ -162,8 +162,9 @@ export class DevicesTableComponent implements OnInit {
   door_buzzer: 'Door Buzzer',
   door_motion_sensor: 'Door Motion Sensor',
   door_membrane_switch: 'Door Membrane Switch',
-    
+
   display: 'Kitchen 4 Digit 7 Segment Display Timer',
+    button: 'Kitchen Button',
   kitchen_button: 'Kitchen Button',
   dht: 'Kitchen DHT',
   gyroscope: 'Gyroscope',
@@ -178,11 +179,12 @@ export class DevicesTableComponent implements OnInit {
   private measurementMap: Record<string, string> = {
     Distance: 'distance',
     MotionDetected: 'motion',
-    IsUnlocked: 'pressed',
+    IsUnlocked: 'is_unlocked',
     IsLightOn: 'status',
     BuzzerActivated: 'status',
     KeyPressed: 'key',
     ButtonPressed: 'key',
+    IsButtonPressed: 'pressed',
     Temperature: 'temperature',
     Humidity: 'humidity',
     Color: 'color',
@@ -200,7 +202,7 @@ export class DevicesTableComponent implements OnInit {
           code: 'DS1',
           name: 'Door Sensor (Button)',
           measurements: [
-            { measurement: 'pressed', latestValue: '?' }
+            { measurement: 'is_unlocked', latestValue: '?' }
           ]
         },
         {
@@ -248,9 +250,9 @@ export class DevicesTableComponent implements OnInit {
       devices: [
         {
           code: 'DS2',
-          name: 'Door sensor (Button)',
+          name: 'Door Sensor (Button)',
           measurements: [
-            { measurement: 'pressed', latestValue: '?' }
+            { measurement: 'is_unlocked', latestValue: '?' }
           ]
         },
         {
