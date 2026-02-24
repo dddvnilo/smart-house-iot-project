@@ -1,0 +1,43 @@
+<div class="remote">
+
+  <!-- Numbers -->
+  <div class="row">
+    <button (click)="send('1')">1</button>
+    <button (click)="send('2')">2</button>
+    <button (click)="send('3')">3</button>
+  </div>
+
+  <div class="row">
+    <button (click)="send('4')">4</button>
+    <button (click)="send('5')">5</button>
+    <button (click)="send('6')">6</button>
+  </div>
+
+  <div class="row">
+    <button (click)="send('7')">7</button>
+    <button (click)="send('8')">8</button>
+    <button (click)="send('9')">9</button>
+  </div>
+
+  <div class="row">
+    <button (click)="send('*')">*</button>
+    <button (click)="send('0')">0</button>
+    <button (click)="send('#')">#</button>
+  </div>
+
+  <!-- Arrows -->
+  <div class="row center">
+    <button (click)="send('UP')">↑</button>
+  </div>
+
+  <div class="row">
+    <button (click)="send('LEFT')">←</button>
+    <button class="ok" (click)="send('OK')">OK</button>
+    <button (click)="send('RIGHT')">→</button>
+  </div>
+
+  <div class="row center">
+    <button (click)="send('DOWN')">↓</button>
+  </div>
+
+</div>

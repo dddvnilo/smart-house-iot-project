@@ -711,6 +711,18 @@ def set_timer():
 
     return jsonify({"status": "success", "message": f"Timer set to {n} seconds, start with button press"})
 
+@app.route('/rgb_led_input', methods=['POST'])
+def rgb_led_input():
+    data = request.get_json()
+    x = data.get("rgb_led_input", 0)
+
+    print("WEB APP: primljen " + x + " sa daljinskog")
+    payload = json.dumps({"input": x})
+    pi2_rgb_led_set_input(payload)
+
+    color = ''
+    return jsonify({"status": "success", "message": f"Bedroom rgb led set to {color}."})
+
 if __name__ == '__main__':
     lcd_update()
     app.run(debug=False ,use_reloader=False)
