@@ -5,6 +5,7 @@ import {KitchenTimerComponent} from '../pages/kitchen-timer/kitchen-timer.compon
 import {BedroomRgbLedComponent} from '../pages/bedroom-rgb-led/bedroom-rgb-led.component';
 import {AlarmComponent} from '../pages/alarm/alarm.component';
 import {AlarmGuard} from '../guards/alarm.guard';
+import {GrafanaComponent} from '../pages/grafana/grafana.component';
 
 export const routes: Routes = [
   {
@@ -31,6 +32,11 @@ export const routes: Routes = [
     canActivate: [AlarmGuard],
     path: 'bedroom-rgb-led',
     component: BedroomRgbLedComponent
+  },
+  {
+    canActivate: [AlarmGuard],
+    path: 'grafana',
+    component: GrafanaComponent
   },
   {
     path: 'alarm',
