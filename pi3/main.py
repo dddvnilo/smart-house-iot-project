@@ -23,7 +23,13 @@ def lcd_set_values(client, userdata, message):
     lcd.set_data(lines)
 
 def rgb_led_set_input(client, userdata, message):
-    pass
+    data = json.loads(message.payload.decode())
+    ir_input = data.get("input")
+
+    if not rgb_led:
+        return
+    
+    rgb_led.led_input(ir_input)
 
 def on_connect(client, userdata, flags, rc):
     client.subscribe([ 
@@ -38,7 +44,7 @@ mqtt_client = mqtt.Client()
 
 mqtt_client.on_connect = on_connect
 mqtt_client.message_callback_add("home/living-room/lcd-set-values", lcd_set_values)
-mqtt_client.message_callback_add("home/living-room/rgb_led-set-input", rgb_led_set_input)
+mqtt_client.message_callback_add("home/bedroom/rgb_led-set-input", rgb_led_set_input)
 
 # MQTT Configuration
 mqtt_client.connect("127.0.0.1", 1883, 60)

@@ -8,7 +8,7 @@ from influxdb_client.client.write_api import SYNCHRONOUS, defaultdict
 import paho.mqtt.client as mqtt
 import json
 from bucket_settings import BucketNames
-from pi_messenger import pi1_turn_alarm_on, pi1_turn_light_on, pi1_turn_alarm_off, pi2_display_set_values, pi3_lcd_set_values
+from pi_messenger import pi1_turn_alarm_on, pi1_turn_light_on, pi1_turn_alarm_off, pi2_display_set_values, pi2_rgb_led_set_input, pi3_lcd_set_values
 import cv2
 import math
 import threading
@@ -203,6 +203,10 @@ def on_rgb_message(client, userdata, message):
 def on_ir_message(client, userdata, message):
     data = json.loads(message.payload.decode('utf-8'))
     save_to_db(data, bucket=BucketNames.IR.value)
+
+    # posaljemo rgb_led-u unos sa daljinskog
+    payload = json.dumps({"input": data.get("value")})
+    pi2_rgb_led_set_input(payload)
 
 def on_dht_message(client, userdata, message):
     data = json.loads(message.payload.decode('utf-8'))
