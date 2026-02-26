@@ -50,11 +50,6 @@ class FourDigitDisplay(object):
         with threading.Lock():
             self.current_value = value
 
-    def display(self, value):
-        self.current_value = str(value).rjust(4)[:4]
-        self.callback(self.current_value, self.settings, self.publish_event)
-
-
     def refresh_once(self):
         # global blink celog displeja
         with threading.Lock():
@@ -85,17 +80,10 @@ class FourDigitDisplay(object):
             GPIO.output(self.digits[digit], 0)
             time.sleep(0.001)
             GPIO.output(self.digits[digit], 1)
-
+        
+        self.callback(self.current_value, self.settings, self.publish_event)
 
 def run_display_loop(display, stop_event):
-    def input_listener():
-        while not stop_event.is_set():
-            val = sys.stdin.readline().strip()
-            if len(val) > 0:
-                display.display(val)
-
-    threading.Thread(target=input_listener, daemon=True).start()
-
-    while not stop_event.is_set():
+   while not stop_event.is_set():
         display.refresh_once()
         time.sleep(0.001)
