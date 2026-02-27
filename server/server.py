@@ -1,6 +1,3 @@
-import eventlet
-eventlet.monkey_patch()
-
 import threading
 import time
 
@@ -25,7 +22,7 @@ import time
 app = Flask(__name__)
 CORS(app, origins=['http://localhost:4200'])
 app.config['SECRET_KEY'] = 'secret!'
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet")
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
 
 # InfluxDB Configuration
 token = "superToken"
@@ -93,8 +90,9 @@ def handle_pin(key):
                     alarm_system_activated = True
                     print("Alarm system activated")
         else:
-            print("netacna sifra")
+            print("Netacna sifra")
             if alarm_system_activated:
+                print("Alarm zbog netacne sifre")
                 dms_alarm()
         input = []
     else:
@@ -117,16 +115,19 @@ def check_people(name):
     if people == 0 and alarm_system_activated:
         if name == "DPIR3":
             dms_alarm()
+            print("Nema ljudi i nije unesena sifra, pali se alarm")
             return
         timer = threading.Timer(15.0, dms_alarm)
         with alarm_lock:
             alarm_timers["people"] = timer
         timer.start()
+        print("Pali se alarm za 15 sekundi ukoliko se ne unese sifra")
+
     direction = get_door_direction(name=name)
     people += direction
     if(people<0):
         people = 0
-    print(people)
+    print("Trenutno ljudi: " + str(people))
 
 def on_dpir_message(client, userdata, message):
     data = json.loads(message.payload.decode('utf-8'))
@@ -188,6 +189,7 @@ def on_ds_message(client, userdata, message):
 
             # ako već postoji timer – nemoj praviti novi
             if location not in alarm_timers and alarm_system_activated:
+                print("Pali se alarm za 5 sekundi ukoliko se ne zakljucaju vrata")
                 timer = threading.Timer(5.0, trigger_unlocked_alarm, args=[location])
                 alarm_timers[location] = timer
                 timer.start()
@@ -196,6 +198,8 @@ def on_ds_message(client, userdata, message):
                     timer = threading.Timer(15.0, dms_alarm)
                     alarm_timers["dms"] = timer
                     timer.start()
+                    print("Pali se alarm za 15 sekundi ukoliko se ne unese sifra")
+
 
         else:
             print(f"{location} zakljucana")

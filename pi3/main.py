@@ -61,7 +61,6 @@ if __name__ == "__main__":
         
         # ucitavanje podesavanja i pokretanje komponenti
 
-        '''
         dpir3_settings = settings['DPIR3']
         run_dpir3(dpir3_settings, threads, stop_event)
 
@@ -73,7 +72,7 @@ if __name__ == "__main__":
 
         lcd_settings = settings['LCD']
         lcd = run_lcd(lcd_settings, threads, stop_event)
-        '''
+
 
         brgb_settings = settings['BRGB']
         rgb_led = run_brgb(brgb_settings, threads, stop_event)
